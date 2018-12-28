@@ -48,7 +48,7 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 
 从 [aqicn.org](https://aqicn.org) 和 [pm25.in](http://www.pm25.in/) （爬取，备用）获取空气质量指数，并显示在状态栏上 / get Air Quality Index (AQI):
 
-![](.screenshots/aqi.png)
+&emsp;&emsp;<img src=".screenshots/aqi.png" width="360px"/>
 
 **依赖 / Dependencies:**
 
