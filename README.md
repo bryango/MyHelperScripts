@@ -54,11 +54,11 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 - **变量 / Const:** `TOKEN_AQICN`, 用于访问 aqicn 的 API
   - 请自行前往 [aqicn.org/api](http://aqicn.org/api/) 申请，否则将 fallback 到 `token = demo` , 功能受限；
   - 获得 token 后，将其以 `TOKEN_AQICN='insert_token_here'` 形式保存到 `~/.tokens` 或直接保存到 `~/.shrc`. 
-- **包 / Pkg:** `python 3.7` 的 `requests[socks], pandas, beautifulsoup4` 模块，建议通过：
+- **包 / Pkg:** `python 3.7` 的 `requests[socks], pandas, beautifulsoup4` 模块，建议使用 Anaconda, 或用以下命令安装：
+
   ```
   pip install --user requests[socks] pandas beautifulsoup4
   ```
-  安装。
 
 **使用方法 / Usage:**
 
