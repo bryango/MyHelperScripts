@@ -6,6 +6,9 @@ __pycache__
 # ... avoid `*`, it works recursively!
 # ... except:
 
+# Screenshots for release
+!/.screenshots/
+
 # Nautilus scripts
 !/.local/
 /.local/*
@@ -45,4 +48,3 @@ __pycache__
 !/apps/hardware/
 /apps/hardware/libinput-gestures*
 /apps/hardware/keyscancodes.log
-
