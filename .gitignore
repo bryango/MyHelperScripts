@@ -1,0 +1,48 @@
+# Generic
+__pycache__
+
+# Ignore everything ...
+/*
+# ... avoid `*`, it works recursively!
+# ... except:
+
+# Nautilus scripts
+!/.local/
+/.local/*
+!/.local/share/
+/.local/share/*
+!/.local/share/nautilus/
+/.local/share/nautilus/*
+!/.local/share/nautilus/scripts/
+
+# Applications
+!/.local/share/applications/
+/.local/share/applications/*.list
+/.local/share/applications/*.cache
+/.local/share/applications/chrome-*
+/.local/share/applications/anbox/
+
+# Argos scripts
+!/.config/
+/.config/*
+!/.config/argos/
+
+# User systemd
+!/.config/systemd/
+/.config/systemd/user/*/
+
+# User bin
+!/bin/
+
+# User utils
+!/apps/
+/apps/*
+!/apps/utils/
+/apps/utils/*.nb
+/apps/utils/*.ipynb
+
+# Hardware tweaks
+!/apps/hardware/
+/apps/hardware/libinput-gestures*
+/apps/hardware/keyscancodes.log
+

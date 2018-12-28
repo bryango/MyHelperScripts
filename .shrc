@@ -1,0 +1,157 @@
+#!/bin/bash
+# For bash AND ZSH
+
+######################
+###### USER MOD ######
+######################
+
+###### UNIVERSAL HELPERS ######
+
+# one-line function ends in semicolon
+function pathq { echo "$PATH" | grep -q "$1"; }
+export PAGER="less -RF"
+alias pathp='echo $PATH | tr ":" "\n"'
+# ls aliases
+#alias ll='ls -alF'
+alias ll='ls -alhF --group-directories-first'
+alias la='ls -A'
+alias l='ls -CF'
+# interactive (safe) operations
+alias rm='rm -iv'
+alias cp='cp -i'
+alias mv='mv -i'
+# 'vi' points to vim
+alias vi=vim
+function cd {
+    [[ $- == *i* ]] && builtin cd "$@" && ll \
+        || builtin cd "$@" || return
+}
+
+#
+# # ex - archive extractor
+# # usage: ex <file>
+ex ()
+{
+  if [ -f "$1" ] ; then
+    case "$1" in
+      *.tar.bz2)   tar xjf "$1"   ;;
+      *.tar.gz)    tar xzf "$1"   ;;
+      *.bz2)       bunzip2 "$1"   ;;
+      *.rar)       unrar x "$1"     ;;
+      *.gz)        gunzip "$1"    ;;
+      *.tar)       tar xf "$1"    ;;
+      *.tbz2)      tar xjf "$1"   ;;
+      *.tgz)       tar xzf "$1"   ;;
+      *.zip)       unzip "$1"     ;;
+      *.Z)         uncompress "$1";;
+      *.7z)        7z x "$1"      ;;
+      *)           echo "'$1' cannot be extracted via ex()" ;;
+    esac
+  else
+    echo "'$1' is not a valid file"
+  fi
+}
+
+# Chinese env
+alias chenv='env LANG=zh_CN.UTF-8'
+# list Chinese fonts
+alias fc-list-zh="fc-list :lang=zh"
+# file:// decode
+function uridecode {
+	: "${*//+/ }"
+	echo -e "${_//%/\\x}" \
+		| sed -e 's/file:\/\///g'
+}
+# read line
+alias whilereadline='while IFS='' read -r line || [[ -n "$line" ]]'
+# check command
+function whichq {
+	command -v "$@" &>/dev/null
+}
+
+# pacman alias
+if whichq pacman; then
+	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq)'
+	alias pacman-clean='sudo pacman -Scc'
+	alias pacman-autoclean='sudo pacman -Sc'
+	alias pacman-rmdb='rm /var/lib/pacman/sync/*'
+	function pacman-qcommand {
+		pacman -Qo "$(which $1)" \
+		    2>/dev/null || which "$1"
+	}
+fi
+# user-friendly
+function git {
+    [ $# -eq 0 ] && which gitsh &>/dev/null && gitsh \
+        || /usr/bin/git "$@"
+}
+whichq gedit && \
+	function gedit { /usr/bin/gedit "$@" &>/dev/null & }
+whichq libreoffice && \
+	function libreoffice-view { libreoffice --view "$@" &>/dev/null & }
+whichq google-chrome-stable && \
+	alias google-chrome-quiet='google-chrome-stable &> /dev/null'
+whichq gitkraken && \
+	alias gitkraken-here='gitkraken --path="$PWD" &> /dev/null & disown'
+whichq nautilus && \
+	alias nautilus-here='nautilus "$PWD" &'
+whichq atom && \
+	alias atom-here='atom "$PWD"'
+whichq glances && \
+	alias glances='glances --process-short-name'
+whichq polipo && \
+	alias polipo-channel-socks="polipo socksParentProxy=localhost:1080"
+whichq powertop && \
+	alias powertop='sudo powertop'
+whichq shalarm && \
+	function shalarm-timer {
+		    shalarm $(( $(date +%H%M) + $1 ))
+	}
+whichq pygmentize && \
+	alias pcat='pygmentize -f terminal256 -O style=native -g'
+
+# vimpager
+#export PAGER=/usr/bin/vimpager
+#alias less=$PAGER
+#alias zless=$PAGER
+
+
+###### LOCAL HELPERS ######
+
+# update env
+pathq "$HOME/bin" || source "$HOME/.profile"
+# pacman-update
+whichq pacman && function pacman-upgrade {
+    pacman-status "China"
+    cat /etc/pacman.d/mirrorlist \
+        | grep --color=always '^Server' \
+        | sed -e 's/Server/Current/g'
+    sudo pacman -Syu
+}
+
+# added by Anaconda3 installer
+CONDA_BIN="$HOME/apps/anaconda3/bin"
+if [ -d "$CONDA_BIN" ]; then
+	export CONDA_BIN
+	pathq "$CONDA_BIN" || export PATH="$CONDA_BIN:$PATH"
+fi
+
+# custom: nb speed dial
+alias nb="jupyter notebook"
+# fix mma
+alias Mathematica='env LD_PRELOAD="/usr/lib/libfreetype.so /usr/lib/libz.so" vblank_mode=0 Mathematica -sl'
+
+# cern ROOT
+alias thisroot=". $HOME/apps/cern/root/bin/thisroot.sh"
+# Only in interactive shell
+[[ $- == *i* ]] && thisroot
+
+# tilix: KEEP AT END OF FILE
+if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
+        source /etc/profile.d/vte.sh
+fi
+
+###### PRIVATE ######
+
+source "$HOME/.secrets"
+source "$HOME/.tokens"
