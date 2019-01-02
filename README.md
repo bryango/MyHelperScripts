@@ -28,6 +28,16 @@ This repo consists of scripts that I write to make my life easier.
 
 ## 内容 / Contents
 
+   * [`~/bin/`](#bin)
+      * [`./lsblk-more`](#lsblk-more)
+      * [`./udisksctl-off`](#udisksctl-off)
+   * [`~/.shrc`](#shrc)
+   * [`~/.config/argos/`](#configargos)
+      * [`./z_aqi.1000c.30m .sh` &amp; `./aqi/`](#z_aqi1000c30msh--aqi)
+      * [`./aeject.0r.1d .sh`](#aeject0r1dsh)
+
+_TOC Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)_
+
 ### `~/bin/`
 
 各种脚本，该目录加入 `$PATH`, 方便调用 / All kinds of fun scripts
