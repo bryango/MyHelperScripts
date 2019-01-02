@@ -89,6 +89,8 @@ whichq gedit && \
 	function gedit { /usr/bin/gedit "$@" &>/dev/null & }
 whichq libreoffice && \
 	function libreoffice-view { libreoffice --view "$@" &>/dev/null & }
+whichq shalarm && \
+	function shalarm-timer { shalarm $(date +%H%M -d "$@"); }
 whichq google-chrome-stable && \
 	alias google-chrome-quiet='google-chrome-stable &> /dev/null'
 whichq gitkraken && \
@@ -103,12 +105,12 @@ whichq polipo && \
 	alias polipo-channel-socks="polipo socksParentProxy=localhost:1080"
 whichq powertop && \
 	alias powertop='sudo powertop'
-whichq shalarm && \
-	function shalarm-timer {
-		    shalarm $(( $(date +%H%M) + $1 ))
-	}
 whichq pygmentize && \
 	alias pcat='pygmentize -f terminal256 -O style=native -g'
+whichq shellcheck && \
+	function shellcheck {
+		/usr/bin/shellcheck --color=always "$@" | less -RF
+	}
 
 # vimpager
 #export PAGER=/usr/bin/vimpager
@@ -146,6 +148,15 @@ alias thisroot=". $HOME/apps/cern/root/bin/thisroot.sh"
 # Only in interactive shell
 [[ $- == *i* ]] && thisroot
 
+# git-secrets
+GIT_SECRETS_DIR="$HOME/apps/git-secrets"
+GIT_SECRETS_BIN="$GIT_SECRETS_DIR/bin"
+if [ -d "$GIT_SECRETS_BIN" ]; then
+	export GIT_SECRETS_BIN
+	pathq "$GIT_SECRETS_BIN" || export PATH="$PATH:$GIT_SECRETS_BIN"
+fi
+[ -z ${MANPATH+x} ] || export MANPATH="$MANPATH:$GIT_SECRETS_DIR/share/man"
+
 # tilix: KEEP AT END OF FILE
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
         source /etc/profile.d/vte.sh
@@ -153,5 +164,5 @@ fi
 
 ###### PRIVATE ######
 
-source "$HOME/.secrets"
-source "$HOME/.tokens"
+[ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
+[ -f "$HOME/.tokens" ] && source "$HOME/.tokens"
