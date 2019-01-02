@@ -2,8 +2,7 @@
 
 **\[ Under contruction / 在建 \]**
 
-代码本自用，使用须谨慎；盲目运行，系统炸了，后果自负！<img src="https://bryango.github.io/assets/coolemoji/tieba_emotion_89.png" width="24px"/>
-
+代码本自用，使用须谨慎；盲目运行，系统炸了，后果自负！<img src="https://bryango.github.io/assets/coolemoji/tieba_emotion_89.png" width="24px"/><br/>
 This repo consists of scripts that I write to make my life easier.
 
 **Disclaimer:** I'm NOT a qualified programmer; rather, I'm a physics student who loves Linux & tinkering. Please check the code before you actually use it on your system. No compatibility is guaranteed.
@@ -25,9 +24,29 @@ This repo consists of scripts that I write to make my life easier.
   - 把需要的脚本逐渐移到（或链接到） `$HOME`; <br/>
     / move or link the wanted scripts to corresponding paths under `$HOME`;
   - 在 `$HOME` 下面先自建一个 git 仓库（注意配置好 `.gitignore`）然后再按需合并，**这是坠吼的！**<br/>
-    / **Best Approach:** `git merge` to your own `$HOME` repo.
+    / **Recommended:** `git merge` to your own `$HOME` repo.
 
 ## 内容 / Contents
+
+### `~/bin/`
+
+各种脚本，该目录加入 `$PATH`, 方便调用 / All kinds of fun scripts
+
+👉 内含脚本如下：
+
+#### `./lsblk-more`
+
+显示挂载分区的详细信息，只不过是 `lsblk` 命令调整了一下显示项 / `lsblk` with relevant options<br/>
+独立为脚本，以方便 `./udisksctl-off` 与 `~/.config/argos/aeject.0r.1d+.sh` 调用
+
+#### `./udisksctl-off`
+
+拔出移动硬盘前使之停转 / Spin down hard drive before unplug
+
+**依赖 / Dependencies:**
+
+- `~/bin/lsblk-more`: 展示硬盘及分区信息 / Show disks info
+- 可选 / Optional: `xdotool`, 最大化当前命令窗口以完整显示列表 / Maximize current terminal emulator
 
 ### `~/.shrc`
 
@@ -42,7 +61,7 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 - GNOME 桌面
   - Argos 插件：[p-e-w/argos](https://github.com/p-e-w/argos), 了不起的好东西！
 
-**内含脚本如下：**
+👉 内含脚本如下：
 
 #### `./z_aqi.1000c.30m+.sh` & `./aqi/`
 
@@ -68,5 +87,17 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 cd ~/.config/argos; chmod +x z_aqi.1000c.30m+.sh
 cd aqi; chmod +x widget.py
 ```
+
+#### `./aeject.0r.1d+.sh`
+
+展示分区信息及硬盘断电功能 / Disks info & power-off option<br/>
+方便地在状态栏启动 `lsblk-more` 与 `udisksctl-off` （见 `~/bin`） / Just an easy access to aforementioned disk utils
+
+**依赖 / Dependencies:**
+
+- `~/bin/lsblk-more`: 展示硬盘及分区信息 / Show disks info
+- `~/bin/udisksctl-off`: 硬盘断电命令 / Power off drives
+
+<br/>
 
 > _发布策略：`git merge --squash --no-commit --allow-unrelated-histories HOME`_
