@@ -38,7 +38,7 @@ _TOC Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)_
 
 各种脚本，该目录加入 `$PATH`, 方便调用 / All kinds of fun scripts
 
-👉 详见 `~/docs/README-bin.md`
+👉 详见 [`~/.docs/README-bin.md`](/.docs/README-bin.md)
 
 ### `~/.shrc`
 
@@ -53,7 +53,7 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 - GNOME 桌面
   - Argos 插件：[p-e-w/argos](https://github.com/p-e-w/argos), 了不起的好东西！
 
-👉 详见 `~/.config/argos/README.md`
+👉 详见 [`~/.config/argos/README.md`](/.config/argos/)
 
 <br/>
 
