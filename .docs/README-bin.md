@@ -4,12 +4,12 @@
 
 👉 内含脚本如下：
 
-#### `./lsblk-more`
+## `./lsblk-more`
 
 显示挂载分区的详细信息，只不过是 `lsblk` 命令调整了一下显示项 / `lsblk` with relevant options<br/>
 独立为脚本，以方便 `./udisksctl-off` 与 `~/.config/argos/aeject.0r.1d+.sh` 调用
 
-#### `./udisksctl-off`
+## `./udisksctl-off`
 
 拔出移动硬盘前使之停转 / Spin down hard drive before unplug
 
