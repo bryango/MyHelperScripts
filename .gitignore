@@ -9,6 +9,9 @@ __pycache__
 # Screenshots for release
 !/.screenshots/
 
+# Docs for release
+!/.docs/
+
 # Nautilus scripts
 !/.local/
 /.local/*

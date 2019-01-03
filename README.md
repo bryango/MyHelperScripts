@@ -42,21 +42,7 @@ _TOC Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)_
 
 各种脚本，该目录加入 `$PATH`, 方便调用 / All kinds of fun scripts
 
-👉 内含脚本如下：
-
-#### `./lsblk-more`
-
-显示挂载分区的详细信息，只不过是 `lsblk` 命令调整了一下显示项 / `lsblk` with relevant options<br/>
-独立为脚本，以方便 `./udisksctl-off` 与 `~/.config/argos/aeject.0r.1d+.sh` 调用
-
-#### `./udisksctl-off`
-
-拔出移动硬盘前使之停转 / Spin down hard drive before unplug
-
-**依赖 / Dependencies:**
-
-- `~/bin/lsblk-more`: 展示硬盘及分区信息 / Show disks info
-- 可选 / Optional: `xdotool`, 最大化当前命令窗口以完整显示列表 / Maximize current terminal emulator
+👉 详见 `~/docs/README-bin.md`
 
 ### `~/.shrc`
 
@@ -64,39 +50,16 @@ Bash 和 Zsh 共用的 `rc` 文件 / `rc` file shared between bash & zsh, source
 
 ### `~/.config/argos/`
 
-Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
+Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts for GNOME
 
 **依赖 / Dependencies:**
 
 - GNOME 桌面
   - Argos 插件：[p-e-w/argos](https://github.com/p-e-w/argos), 了不起的好东西！
 
-👉 内含脚本如下：
+👉 详见 `~/.config/argos/README.md`
 
-#### `./z_aqi.1000c.30m+.sh` & `./aqi/`
-
-从 [aqicn.org](https://aqicn.org) 和 [pm25.in](http://www.pm25.in/) （爬取，备用）获取空气质量指数，并显示在状态栏上 / get Air Quality Index (AQI):
-
-&emsp;&emsp;<img src=".screenshots/aqi.png" width="360px"/>
-
-**依赖 / Dependencies:**
-
-- **文件 / File:** `~/.shrc`, 获取正确的 python 路径与 token;
-- **变量 / Const:** `TOKEN_AQICN`, 用于访问 aqicn 的 API
-  - 请自行前往 [aqicn.org/api](http://aqicn.org/api/) 申请，否则将 fallback 到 `token = demo` , 功能受限；
-  - 获得 token 后，将其以 `TOKEN_AQICN='insert_token_here'` 形式保存到 `~/.tokens` 或直接保存到 `~/.shrc`.
-- **包 / Pkg:** `python 3.7` 的 `requests[socks], pandas, beautifulsoup4` 模块，建议使用 Anaconda, 或用以下命令安装：
-
-  ```
-  pip install --user requests[socks] pandas beautifulsoup4
-  ```
-
-**使用方法 / Usage:**
-
-```
-cd ~/.config/argos; chmod +x z_aqi.1000c.30m+.sh
-cd aqi; chmod +x widget.py
-```
+<br/>
 
 #### `./aeject.0r.1d+.sh`
 
