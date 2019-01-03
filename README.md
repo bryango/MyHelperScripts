@@ -29,12 +29,8 @@ This repo consists of scripts that I write to make my life easier.
 ## 内容 / Contents
 
    * [`~/bin/`](#bin)
-      * [`./lsblk-more`](#lsblk-more)
-      * [`./udisksctl-off`](#udisksctl-off)
    * [`~/.shrc`](#shrc)
    * [`~/.config/argos/`](#configargos)
-      * [`./z_aqi.1000c.30m .sh` &amp; `./aqi/`](#z_aqi1000c30msh--aqi)
-      * [`./aeject.0r.1d .sh`](#aeject0r1dsh)
 
 _TOC Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)_
 
@@ -58,18 +54,6 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
   - Argos 插件：[p-e-w/argos](https://github.com/p-e-w/argos), 了不起的好东西！
 
 👉 详见 `~/.config/argos/README.md`
-
-<br/>
-
-#### `./aeject.0r.1d+.sh`
-
-展示分区信息及硬盘断电功能 / Disks info & power-off option<br/>
-方便地在状态栏启动 `lsblk-more` 与 `udisksctl-off` （见 `~/bin`） / Just an easy access to aforementioned disk utils
-
-**依赖 / Dependencies:**
-
-- `~/bin/lsblk-more`: 展示硬盘及分区信息 / Show disks info
-- `~/bin/udisksctl-off`: 硬盘断电命令 / Power off drives
 
 <br/>
 
