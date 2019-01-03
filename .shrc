@@ -22,11 +22,24 @@ alias cp='cp -i'
 alias mv='mv -i'
 # 'vi' points to vim
 alias vi=vim
+# cd & ll
 function cd {
-    [[ $- == *i* ]] && builtin cd "$@" && ll \
-        || builtin cd "$@" || return
+	[[ $- == *i* ]] && builtin cd "$@" && ll \
+		|| builtin cd "$@" || return
 }
-
+# path remover
+function pathrm {
+	[ "$(echo $PATH | wc -l)" -eq 1 ] && [ $# -eq 1 ] && [ "$1" != '' ] \
+		&& export PATH_BACKUP=$PATH \
+		&& PATH=$(
+			p=$(echo "$PATH" \
+				| tr ":" "\n" \
+				| grep -v "$1" \
+				| tr "\n" ":"
+			); echo "${p%:}") \
+		&& export PATH \
+		|| echo "# PATH Un-change" && return 1
+}
 #
 # # ex - archive extractor
 # # usage: ex <file>
@@ -131,22 +144,10 @@ whichq pacman && function pacman-upgrade {
     sudo pacman -Syu
 }
 
-# added by Anaconda3 installer
-CONDA_BIN="$HOME/apps/anaconda3/bin"
-if [ -d "$CONDA_BIN" ]; then
-	export CONDA_BIN
-	pathq "$CONDA_BIN" || export PATH="$CONDA_BIN:$PATH"
-fi
-
 # custom: nb speed dial
 alias nb="jupyter notebook"
 # fix mma
 alias Mathematica='env LD_PRELOAD="/usr/lib/libfreetype.so /usr/lib/libz.so" vblank_mode=0 Mathematica -sl'
-
-# cern ROOT
-alias thisroot=". $HOME/apps/cern/root/bin/thisroot.sh"
-# Only in interactive shell
-[[ $- == *i* ]] && thisroot
 
 # git-secrets
 GIT_SECRETS_DIR="$HOME/apps/git-secrets"
@@ -156,6 +157,20 @@ if [ -d "$GIT_SECRETS_BIN" ]; then
 	pathq "$GIT_SECRETS_BIN" || export PATH="$PATH:$GIT_SECRETS_BIN"
 fi
 [ -z ${MANPATH+x} ] || export MANPATH="$MANPATH:$GIT_SECRETS_DIR/share/man"
+
+
+# added by Anaconda3 installer
+CONDA_BIN="$HOME/apps/anaconda3/bin"
+if [ -d "$CONDA_BIN" ]; then
+	export CONDA_BIN
+	pathq "$CONDA_BIN" || export PATH="$CONDA_BIN:$PATH"
+fi
+
+# cern ROOT
+alias thisroot=". $HOME/apps/cern/root/bin/thisroot.sh"
+# Only in interactive shell
+[[ $- == *i* ]] && thisroot
+
 
 # tilix: KEEP AT END OF FILE
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
