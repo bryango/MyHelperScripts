@@ -11,9 +11,10 @@ command -v xdotool &>/dev/null && xdotool key super+Up
 # Modern implementation: calls `~/bin/lsblk-more`
 lsblk-more --all
 
-echo       "----------------"
-echo       "* Best to AVOID mounted devices!"
-read -r -p "* Which to power off? Enter sdx: " sdx
+echo    "----------------"
+echo    "* Best to AVOID mounted devices!"
+printf  "* Which to power off? Enter sdx: "
+read -r sdx
 
 mounted_lst=$(
 	df --output=source | sed 1d | grep "/dev/$sdx"

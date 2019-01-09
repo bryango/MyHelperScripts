@@ -53,7 +53,11 @@ def aqi_json_by_location(loc: str, city=None, station=None) -> dict:
             debug_info('Fetch failed. Reloading...')
             return {}
 
-    aqi_json = aqi_data.json()
+    try:
+        aqi_json = aqi_data.json()
+    except:  # noqa: E722
+        debug_info('Fetch failed. Reloading...')
+        return {}
 
     if aqi_json['status'] != 'ok' or not isinstance(
         aqi_json['data']['aqi'], int

@@ -7,9 +7,11 @@
 
 ###### UNIVERSAL HELPERS ######
 
+export EDITOR=/usr/bin/vim
+export PAGER="less -RF"
+
 # one-line function ends in semicolon
 function pathq { echo "$PATH" | grep -q "$1"; }
-export PAGER="less -RF"
 alias pathp='echo $PATH | tr ":" "\n"'
 # ls aliases
 #alias ll='ls -alF'
@@ -22,11 +24,6 @@ alias cp='cp -i'
 alias mv='mv -i'
 # 'vi' points to vim
 alias vi=vim
-# cd & ll
-function cd {
-	[[ $- == *i* ]] && builtin cd "$@" && ll \
-		|| builtin cd "$@" || return
-}
 # path remover
 function pathrm {
 	[ "$(echo $PATH | wc -l)" -eq 1 ] && [ $# -eq 1 ] && [ "$1" != '' ] \
@@ -77,6 +74,15 @@ function uridecode {
 }
 # read line
 alias whilereadline='while IFS='' read -r line || [[ -n "$line" ]]'
+# vi history
+function vi-history {
+	if [[ -n "$ZSH_VERSION" ]] && [[ -r "$HOME/.zsh_history" ]]; then
+		vim "+normal G$" "$HOME/.zsh_history"
+	elif [[ -n "$BASH_VERSION" ]] && [[ -r "$HOME/.bash_history" ]]; then
+		vim "+normal G$" "$HOME/.bash_history"
+	fi
+}
+
 # check command
 function whichq {
 	command -v "$@" &>/dev/null
@@ -122,19 +128,44 @@ whichq pygmentize && \
 	alias pcat='pygmentize -f terminal256 -O style=native -g'
 whichq shellcheck && \
 	function shellcheck {
+		# Clumsy approach
 		/usr/bin/shellcheck --color=always "$@" | less -RF
+		# TODO: Handle by vim
 	}
+whichq adb && \
+	function adb-rotate {
+		if [[ $# -eq 0 ]]; then
+			# auto rotation
+			adb shell settings put system accelerometer_rotation 1
+		elif [[ "$1" = 0 ]] || [[ "$1" = 1 ]]; then
+			adb shell settings put system accelerometer_rotation 0
+			adb shell settings put system user_rotation "$1"
+		else
+			echo "# Bad arguments! 0: portrait, 1: landscape."
+			return 1
+		fi
+	}
+
+# shadowsocks (server)
+[[ -r /etc/init.d/shadowsocks ]] && \
+	alias shadowsocks='/etc/init.d/shadowsocks'
 
 # vimpager
 #export PAGER=/usr/bin/vimpager
 #alias less=$PAGER
 #alias zless=$PAGER
 
+# SSH_AUTH_SOCK
+[[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]] && [[ -n "$SSH_AUTH_SOCK" ]] && \
+	echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
+
 
 ###### LOCAL HELPERS ######
 
 # update env
-pathq "$HOME/bin" || source "$HOME/.profile"
+pathq "$HOME/bin" || [[ -r "$HOME/.profile" ]] && \
+	source "$HOME/.profile" || true
+
 # pacman-update
 whichq pacman && function pacman-upgrade {
     pacman-status "China"
@@ -143,6 +174,12 @@ whichq pacman && function pacman-upgrade {
         | sed -e 's/Server/Current/g'
     sudo pacman -Syu
 }
+# shutdown check
+if whichq shutdown-checklist; then
+	for cmd in 'shutdown' 'reboot' 'poweroff'; do
+		alias $cmd="shutdown-checklist && $cmd"
+	done
+fi
 
 # custom: nb speed dial
 alias nb="jupyter notebook"
@@ -167,17 +204,24 @@ if [ -d "$CONDA_BIN" ]; then
 fi
 
 # cern ROOT
-alias thisroot=". $HOME/apps/cern/root/bin/thisroot.sh"
+CERN_ROOT_BIN="$HOME/apps/cern/root/bin"
+alias thisroot=". $CERN_ROOT_BIN/thisroot.sh"
 # Only in interactive shell
-[[ $- == *i* ]] && thisroot
+[[ $- == *i* ]] && [[ -d "$CERN_ROOT_BIN" ]] && thisroot || true
 
 
 # tilix: KEEP AT END OF FILE
 if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-        source /etc/profile.d/vte.sh
+	source /etc/profile.d/vte.sh
 fi
 
 ###### PRIVATE ######
 
-[ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
-[ -f "$HOME/.tokens" ] && source "$HOME/.tokens"
+[[ -r "$HOME/.secrets" ]] && source "$HOME/.secrets" || true
+[[ -r "$HOME/.tokens" ]] && source "$HOME/.tokens" || true
+
+###### AT LAST ######
+
+# append system python packages
+export PYTHONPATH="$PYTHONPATH:/usr/lib/python3.7/site-packages"
+
