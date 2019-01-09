@@ -36,8 +36,9 @@ cd aqi; chmod +x widget.py
 
 ## `./aeject.0r.1d+.sh`
 
-展示分区信息及硬盘断电功能 / Disks info & power-off option<br/>
-方便地在状态栏启动 `lsblk-more` 与 `udisksctl-off` （见 `~/bin`） / Just an easy access to aforementioned disk utils
+分区信息及硬盘断电功能 / Disks info & power-off option<br/>
+
+方便地在状态栏启动 `lsblk-more` 与 `udisksctl-off` （见 `~/bin`） / Just an easy access to disk utils in `~/bin`
 
 **依赖 / Dependencies:**
 
