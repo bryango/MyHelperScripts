@@ -1,17 +1,21 @@
 #!/bin/bash
+# shellcheck shell=bash disable=SC1090,SC1091,SC2015
 # For bash AND ZSH
 
 ######################
 ###### USER MOD ######
 ######################
 
-###### UNIVERSAL HELPERS ######
+###### 1. UNIVERSAL HELPERS ######
 
 export EDITOR=/usr/bin/vim
 export PAGER="less -RF"
 
 # one-line function ends in semicolon
 function pathq { echo "$PATH" | grep -q "$1"; }
+function whichq { command -v "$@" &>/dev/null; }
+function source-try { [[ -r "$1" ]] && source "$1" || true; }
+
 alias pathp='echo $PATH | tr ":" "\n"'
 # ls aliases
 #alias ll='ls -alF'
@@ -24,56 +28,54 @@ alias cp='cp -i'
 alias mv='mv -i'
 # 'vi' points to vim
 alias vi=vim
+
+# Chinese
+alias env-zh='env LANG=zh_CN.UTF-8'
+alias fc-list-zh="fc-list :lang=zh"
+# read line
+alias whilereadline='while IFS='' read -r line || [[ -n "$line" ]]'
+
 # path remover
 function pathrm {
-	[ "$(echo $PATH | wc -l)" -eq 1 ] && [ $# -eq 1 ] && [ "$1" != '' ] \
+	[ "$(echo "$PATH" | wc -l)" -eq 1 ] && [ $# -eq 1 ] && [ "$1" != '' ] \
 		&& export PATH_BACKUP=$PATH \
 		&& PATH=$(
 			p=$(echo "$PATH" \
-				| tr ":" "\n" \
+				| tr ':' '\n' \
 				| grep -v "$1" \
-				| tr "\n" ":"
+				| tr ':' '\n'
 			); echo "${p%:}") \
 		&& export PATH \
 		|| echo "# PATH Un-change" && return 1
 }
-#
-# # ex - archive extractor
-# # usage: ex <file>
-ex ()
-{
-  if [ -f "$1" ] ; then
-    case "$1" in
-      *.tar.bz2)   tar xjf "$1"   ;;
-      *.tar.gz)    tar xzf "$1"   ;;
-      *.bz2)       bunzip2 "$1"   ;;
-      *.rar)       unrar x "$1"     ;;
-      *.gz)        gunzip "$1"    ;;
-      *.tar)       tar xf "$1"    ;;
-      *.tbz2)      tar xjf "$1"   ;;
-      *.tgz)       tar xzf "$1"   ;;
-      *.zip)       unzip "$1"     ;;
-      *.Z)         uncompress "$1";;
-      *.7z)        7z x "$1"      ;;
-      *)           echo "'$1' cannot be extracted via ex()" ;;
-    esac
-  else
-    echo "'$1' is not a valid file"
-  fi
+# archive extractor
+function ex {
+	if [[ -f "$1" ]] ; then
+		case "$1" in
+			*.tar.bz2)   tar xjf "$1"    ;;
+			*.tar.gz)    tar xzf "$1"    ;;
+			*.bz2)       bunzip2 "$1"    ;;
+			*.rar)       unrar x "$1"    ;;
+			*.gz)        gunzip "$1"     ;;
+			*.tar)       tar xf "$1"     ;;
+			*.tbz2)      tar xjf "$1"    ;;
+			*.tgz)       tar xzf "$1"    ;;
+			*.zip)       unzip "$1"      ;;
+			*.Z)         uncompress "$1" ;;
+			*.7z)        7z x "$1"       ;;
+			*)           echo "# '$1' cannot be extracted via ex()" ;;
+		esac
+	else
+		echo "# '$1' is not a valid file"
+		return 1
+	fi
 }
-
-# Chinese env
-alias chenv='env LANG=zh_CN.UTF-8'
-# list Chinese fonts
-alias fc-list-zh="fc-list :lang=zh"
 # file:// decode
 function uridecode {
 	: "${*//+/ }"
 	echo -e "${_//%/\\x}" \
 		| sed -e 's/file:\/\///g'
 }
-# read line
-alias whilereadline='while IFS='' read -r line || [[ -n "$line" ]]'
 # vi history
 function vi-history {
 	if [[ -n "$ZSH_VERSION" ]] && [[ -r "$HOME/.zsh_history" ]]; then
@@ -83,100 +85,31 @@ function vi-history {
 	fi
 }
 
-# check command
-function whichq {
-	command -v "$@" &>/dev/null
-}
-
-# pacman alias
-if whichq pacman; then
-	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq)'
-	alias pacman-clean='sudo pacman -Scc'
-	alias pacman-autoclean='sudo pacman -Sc'
-	alias pacman-rmdb='rm /var/lib/pacman/sync/*'
-	function pacman-qcommand {
-		pacman -Qo "$(which $1)" \
-		    2>/dev/null || which "$1"
-	}
-fi
-# user-friendly
-function git {
-    [ $# -eq 0 ] && which gitsh &>/dev/null && gitsh \
-        || /usr/bin/git "$@"
-}
-whichq gedit && \
-	function gedit { /usr/bin/gedit "$@" &>/dev/null & }
-whichq libreoffice && \
-	function libreoffice-view { libreoffice --view "$@" &>/dev/null & }
-whichq shalarm && \
-	function shalarm-timer { shalarm $(date +%H%M -d "$@"); }
-whichq google-chrome-stable && \
-	alias google-chrome-quiet='google-chrome-stable &> /dev/null'
-whichq gitkraken && \
-	alias gitkraken-here='gitkraken --path="$PWD" &> /dev/null & disown'
-whichq nautilus && \
-	alias nautilus-here='nautilus "$PWD" &'
-whichq atom && \
-	alias atom-here='atom "$PWD"'
-whichq glances && \
-	alias glances='glances --process-short-name'
-whichq polipo && \
-	alias polipo-channel-socks="polipo socksParentProxy=localhost:1080"
-whichq powertop && \
-	alias powertop='sudo powertop'
-whichq pygmentize && \
-	alias pcat='pygmentize -f terminal256 -O style=native -g'
-whichq shellcheck && \
-	function shellcheck {
-		# Clumsy approach
-		/usr/bin/shellcheck --color=always "$@" | less -RF
-		# TODO: Handle by vim
-	}
-whichq adb && \
-	function adb-rotate {
-		if [[ $# -eq 0 ]]; then
-			# auto rotation
-			adb shell settings put system accelerometer_rotation 1
-		elif [[ "$1" = 0 ]] || [[ "$1" = 1 ]]; then
-			adb shell settings put system accelerometer_rotation 0
-			adb shell settings put system user_rotation "$1"
-		else
-			echo "# Bad arguments! 0: portrait, 1: landscape."
-			return 1
-		fi
-	}
-
-# shadowsocks (server)
+# shadowsocks server
 [[ -r /etc/init.d/shadowsocks ]] && \
 	alias shadowsocks='/etc/init.d/shadowsocks'
-
-# vimpager
-#export PAGER=/usr/bin/vimpager
-#alias less=$PAGER
-#alias zless=$PAGER
-
-# SSH_AUTH_SOCK
+# SSH auth agent
 [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]] && [[ -n "$SSH_AUTH_SOCK" ]] && \
 	echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
 
 
-###### LOCAL HELPERS ######
+###### 2. LOCAL HELPERS ######
 
 # update env
-pathq "$HOME/bin" || [[ -r "$HOME/.profile" ]] && \
-	source "$HOME/.profile" || true
+pathq "$HOME/bin" || source-try "$HOME/.profile"
 
 # pacman-update
 whichq pacman && function pacman-upgrade {
     pacman-status "China"
-    cat /etc/pacman.d/mirrorlist \
-        | grep --color=always '^Server' \
+    grep --color=always '^Server' /etc/pacman.d/mirrorlist \
         | sed -e 's/Server/Current/g'
     sudo pacman -Syu
 }
+
 # shutdown check
 if whichq shutdown-checklist; then
 	for cmd in 'shutdown' 'reboot' 'poweroff'; do
+		# shellcheck disable=SC2139
 		alias $cmd="shutdown-checklist && $cmd"
 	done
 fi
@@ -184,7 +117,10 @@ fi
 # custom: nb speed dial
 alias nb="jupyter notebook"
 # fix mma
-alias Mathematica='env LD_PRELOAD="/usr/lib/libfreetype.so /usr/lib/libz.so" vblank_mode=0 Mathematica -sl'
+alias Mathematica='env'\
+' LD_PRELOAD="/usr/lib/libfreetype.so /usr/lib/libz.so"'\
+' vblank_mode=0'\
+' Mathematica -sl'
 
 # git-secrets
 GIT_SECRETS_DIR="$HOME/apps/git-secrets"
@@ -205,23 +141,97 @@ fi
 
 # cern ROOT
 CERN_ROOT_BIN="$HOME/apps/cern/root/bin"
+# shellcheck disable=SC2139
 alias thisroot=". $CERN_ROOT_BIN/thisroot.sh"
 # Only in interactive shell
 [[ $- == *i* ]] && [[ -d "$CERN_ROOT_BIN" ]] && thisroot || true
 
-
-# tilix: KEEP AT END OF FILE
-if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-	source /etc/profile.d/vte.sh
-fi
-
-###### PRIVATE ######
-
-[[ -r "$HOME/.secrets" ]] && source "$HOME/.secrets" || true
-[[ -r "$HOME/.tokens" ]] && source "$HOME/.tokens" || true
-
-###### AT LAST ######
-
 # append system python packages
 export PYTHONPATH="$PYTHONPATH:/usr/lib/python3.7/site-packages"
 
+
+###### 3. PRIVATE DATA ######
+
+source-try "$HOME/.secrets"
+source-try "$HOME/.tokens"
+
+
+###### 4. USER-FRIENDLY ######
+
+# wrap commands
+function function-wrap {
+	if [[ $# -eq 3 ]] || [[ $# -eq 4 ]]; then
+		local cmd="$1" pre="$2" post="$3" name fullcmd
+		[[ $# -eq 4 ]] && [[ -n "$4" ]] \
+			&& name="$4" \
+			|| name="$cmd"
+		fullcmd=$(command -v "$cmd") \
+			&& eval "function $name {
+				$fullcmd $pre \"\$@\" $post
+			}" || true
+	else
+		echo "# Invalid arguments!"
+		return 1
+	fi
+}
+function alias-wrap {
+	if [[ $# -eq 2 ]] || [[ $# -eq 3 ]]; then
+		local cmd="$1" opt="$2" name
+		[[ $# -eq 3 ]] && [[ -n "$3" ]] \
+			&& name="$3" \
+			|| name="$cmd"
+		whichq "$cmd" \
+			&& eval "alias $name='$cmd $opt'" \
+			|| true
+	else
+		echo "# Invalid arguments!"
+		return 1
+	fi
+}
+
+# silence output
+disown_detach='&>/dev/null & disown'
+noisy_apps=(
+	'gedit'
+	'google-chrome-stable'
+)
+for app in "${noisy_apps[@]}"; do
+	function-wrap "$app" '' "$disown_detach"
+done
+
+function-wrap libreoffice '--view' "$disown_detach" 'libreoffice-view'
+function-wrap shellcheck '--color=always' '| less -RF'  # TODO: Handle by vim
+alias-wrap gitkraken "--path=\"\$PWD\" $disown_detach"
+alias-wrap nautilus "\"\$PWD\" $disown_detach" 'nautilus-here'
+alias-wrap atom "\"\$PWD\"" 'atom-here'
+alias-wrap glances "--process-short-name"
+alias-wrap polipo "socksParentProxy=localhost:1080" 'polipo-channel-socks'
+alias-wrap pygmentize "-f terminal256 -O style=native -g" 'pcat'
+
+whichq lazygit && \
+	function git { [[ $# -eq 0 ]] && lazygit || /usr/bin/git "$@"; }
+whichq shalarm && \
+	function shalarm-timer { shalarm "$(date +%H%M -d "$@")"; }
+whichq powertop && \
+	alias powertop='sudo powertop'
+whichq adb && \
+	function adb-rotate {
+		if [[ $# -eq 0 ]]; then
+			# auto rotation
+			adb shell settings put system accelerometer_rotation 1
+		elif [[ "$1" = 0 ]] || [[ "$1" = 1 ]]; then
+			adb shell settings put system accelerometer_rotation 0
+			adb shell settings put system user_rotation "$1"
+		else
+			echo "# Bad arguments! 0: portrait, 1: landscape."
+			return 1
+		fi
+	}
+
+
+###### AT LAST ######
+
+# tilix: KEEP AT END OF FILE
+if [[ "$TILIX_ID" ]] || [[ "$VTE_VERSION" ]]; then
+	source /etc/profile.d/vte.sh
+fi
