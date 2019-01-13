@@ -155,6 +155,7 @@ alias thisroot=". $CERN_ROOT_BIN/thisroot.sh"
 export PYTHONPATH="$PYTHONPATH:/usr/lib/python3.7/site-packages"
 # prepend anaconda
 CONDA_LIB_PY37="$HOME/apps/anaconda3/lib/python3.7"
+# shellcheck disable=SC2140
 [[ -d $CONDA_LIB_PY37 ]] && \
 	export PYTHONPATH="$CONDA_LIB_PY37"\
 ":$CONDA_LIB_PY37/lib-dynload"\
@@ -231,8 +232,8 @@ if whichq pacman; then
 			pacman -Qo "$(builtin which "$1")" 2>/dev/null \
 				|| builtin which "$1"
 		elif [[ -n "$BASH_VERSION" ]]; then
-			pacman -Qo "$(/usr/bin/which "$1" 2>/dev/null)" 2>/dev/null \
-				|| /usr/bin/which "$1"
+			pacman -Qo "$(command -v "$1" 2>/dev/null)" 2>/dev/null \
+				|| command -v "$1"
 		fi
 	}
 fi
