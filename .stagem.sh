@@ -1,5 +1,5 @@
 #!/bin/bash
-# Selectively merge HOME to publish
+# Selectively stage HOME to publish
 
 function gstats { git status -M --porcelain; }
 
