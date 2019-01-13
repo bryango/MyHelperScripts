@@ -78,11 +78,16 @@ function uridecode {
 }
 # vi history
 function vi-history {
+	local history_path cmd='bash -c'\
+' "(command -v xdotool &>/dev/null'\
+' && xdotool key h h l'\
+' || true) &>/dev/null &"'  # Left Left Right
 	if [[ -n "$ZSH_VERSION" ]] && [[ -r "$HOME/.zsh_history" ]]; then
-		vim "+normal G$" "$HOME/.zsh_history"
+		history_path="$HOME/.zsh_history"
 	elif [[ -n "$BASH_VERSION" ]] && [[ -r "$HOME/.bash_history" ]]; then
-		vim "+normal G$" "$HOME/.bash_history"
+		history_path="$HOME/.bash_history"
 	fi
+	vim + "+!$cmd" "$history_path"
 }
 
 # shadowsocks server
@@ -148,6 +153,13 @@ alias thisroot=". $CERN_ROOT_BIN/thisroot.sh"
 
 # append system python packages
 export PYTHONPATH="$PYTHONPATH:/usr/lib/python3.7/site-packages"
+# prepend anaconda
+CONDA_LIB_PY37="$HOME/apps/anaconda3/lib/python3.7"
+[[ -d $CONDA_LIB_PY37 ]] && \
+	export PYTHONPATH="$CONDA_LIB_PY37"\
+":$CONDA_LIB_PY37/lib-dynload"\
+":$CONDA_LIB_PY37/site-packages"\
+":$PYTHONPATH"
 
 
 ###### 3. PRIVATE DATA ######
@@ -200,13 +212,30 @@ for app in "${noisy_apps[@]}"; do
 done
 
 function-wrap libreoffice '--view' "$disown_detach" 'libreoffice-view'
-function-wrap shellcheck '--color=always' '| less -RF'  # TODO: Handle by vim
+function-wrap shellcheck '--color=always' '| less -RF'
 alias-wrap gitkraken "--path=\"\$PWD\" $disown_detach"
 alias-wrap nautilus "\"\$PWD\" $disown_detach" 'nautilus-here'
 alias-wrap atom "\"\$PWD\"" 'atom-here'
 alias-wrap glances "--process-short-name"
 alias-wrap polipo "socksParentProxy=localhost:1080" 'polipo-channel-socks'
 alias-wrap pygmentize "-f terminal256 -O style=native -g" 'pcat'
+
+# pacman alias
+if whichq pacman; then
+	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq)'
+	alias pacman-clean='sudo pacman -Scc'
+	alias pacman-autoclean='sudo pacman -Sc'
+	alias pacman-rmdb='rm /var/lib/pacman/sync/*'
+	[[ $- == *i* ]] && function which {
+		if [[ -n "$ZSH_VERSION" ]]; then
+			pacman -Qo "$(builtin which "$1")" 2>/dev/null \
+				|| builtin which "$1"
+		elif [[ -n "$BASH_VERSION" ]]; then
+			pacman -Qo "$(/usr/bin/which "$1" 2>/dev/null)" 2>/dev/null \
+				|| /usr/bin/which "$1"
+		fi
+	}
+fi
 
 whichq lazygit && \
 	function git { [[ $# -eq 0 ]] && lazygit || /usr/bin/git "$@"; }

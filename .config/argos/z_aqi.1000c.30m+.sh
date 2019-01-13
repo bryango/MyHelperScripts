@@ -12,6 +12,12 @@ fi
 # Update python path & tokens
 source "$HOME/.shrc"
 export TOKEN_AQICN
+IFS_BACKUP=$IFS
+IFS=$'\n' && echo "${!ARGOS*}" \
+	| while IFS= read -r var || [[ -n "$var" ]]; do
+		export "${var?}";
+	done
+IFS=$IFS_BACKUP
 
 # Important: correct path
 cd "$HOME/.config/argos/aqi"
