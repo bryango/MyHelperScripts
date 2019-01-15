@@ -5,7 +5,7 @@ places = [
     { 'city': 'beijing',
       'location': 'beijing/haidianwanliu',
       'station': '海淀区万柳' },
-    { 'location': 'beijing/us-embassy'}
+    { 'location': 'beijing/us-embassy' }
 ]  # `location` required, other keys optional
 
 proxies = {
