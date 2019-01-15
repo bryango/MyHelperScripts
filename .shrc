@@ -43,10 +43,11 @@ function pathrm {
 			p=$(echo "$PATH" \
 				| tr ':' '\n' \
 				| grep -v "$1" \
-				| tr ':' '\n'
+				| tr '\n' ':'
 			); echo "${p%:}") \
 		&& export PATH \
-		|| echo "# PATH Un-change" && return 1
+		&& pathp \
+		|| ( echo "# PATH Un-change" && return 1 )
 }
 # archive extractor
 function ex {
