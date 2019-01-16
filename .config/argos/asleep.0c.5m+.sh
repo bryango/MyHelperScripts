@@ -9,12 +9,12 @@ post_style="</tt></span>"
 
 getup=$(date +%-H:%M -d "+ $sleeplen")
 if [[ "$now" -gt 2100 ]] || [[ "$now" -lt 300 ]]; then
-	echo "🌙 $getup|trim=false"
+	echo "🌙  $getup|trim=false"
 else
 	echo ""
 fi
 
 echo "---"
-echo "If you go to sleep NOW,|$markup"
-echo " ... and sleep for $pre_style $sleeplen $post_style|$markup"
-echo " ... you will wake up @ $pre_style $getup $post_style|$markup"
+echo "<tt>If you go to sleep</tt> $pre_style NOW $post_style|$markup"
+echo "<tt> ... and sleep for</tt> $pre_style $sleeplen $post_style|$markup"
+echo "<tt> ... you will wake up @</tt> $pre_style $getup $post_style|$markup"
