@@ -224,10 +224,19 @@ alias-wrap pygmentize "-f terminal256 -O style=native -g" 'pcat'
 
 # pacman alias
 if whichq pacman; then
-	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq)'
 	alias pacman-clean='sudo pacman -Scc'
 	alias pacman-autoclean='sudo pacman -Sc'
 	alias pacman-rmdb='rm /var/lib/pacman/sync/*'
+#	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq) 2>&1'\
+#' | sed -E -e "s/error: no targets.*/# No orphans!/g"'
+	function pacman-autoremove {
+		local orphans
+		if orphans=$(pacman -Qdtq); then
+			sudo pacman -Rs "$orphans"
+		else
+			echo "# No orphans! Nice!"
+		fi
+	}
 	[[ $- == *i* ]] && function which {
 		if [[ -n "$ZSH_VERSION" ]]; then
 			pacman -Qo "$(builtin which "$1")" 2>/dev/null \
