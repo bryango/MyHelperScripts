@@ -9,7 +9,7 @@ if [[ "$(git rev-parse --abbrev-ref HEAD)" != "publish" ]]; then
 elif git merge HEAD &>/dev/null; then
 	git reset HEAD .
 	gstats \
-		| sed --quiet 's/^ *M *//p' \
+		| sed --quiet 's/^ *[M|D] *//p' \
 		| while IFS= read -r line || [[ -n "$line" ]]; do
 			git add "$line";
 		done
