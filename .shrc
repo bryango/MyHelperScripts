@@ -173,33 +173,34 @@ source-try "$HOME/.tokens"
 ###### 4. USER-FRIENDLY ######
 
 # wrap commands
-function function-wrap {
-	if [[ $# -eq 3 ]] || [[ $# -eq 4 ]]; then
+function function-wrap {  # cmd, pre, post, name
+	if [[ $# -lt 3 ]]; then
+		echo "# Not enough arguments!"
+		return 1
+	else
 		local cmd="$1" pre="$2" post="$3" name fullcmd
-		[[ $# -eq 4 ]] && [[ -n "$4" ]] \
+		[[ -n "$4" ]] \
 			&& name="$4" \
 			|| name="$cmd"
 		fullcmd=$(command -v "$cmd") \
 			&& eval "function $name {
 				$fullcmd $pre \"\$@\" $post
-			}" || true
-	else
-		echo "# Invalid arguments!"
-		return 1
+			}" \
+			|| true  # Don't worry, $cmd not installed
 	fi
 }
-function alias-wrap {
-	if [[ $# -eq 2 ]] || [[ $# -eq 3 ]]; then
+function alias-wrap {  # cmd, opt, name
+	if [[ $# -lt 2 ]]; then
+		echo "# Not enough arguments!"
+		return 1
+	else
 		local cmd="$1" opt="$2" name
-		[[ $# -eq 3 ]] && [[ -n "$3" ]] \
+		[[ -n "$3" ]] \
 			&& name="$3" \
 			|| name="$cmd"
 		whichq "$cmd" \
 			&& eval "alias $name='$cmd $opt'" \
-			|| true
-	else
-		echo "# Invalid arguments!"
-		return 1
+			|| true  # Don't worry, $cmd not installed
 	fi
 }
 
@@ -221,6 +222,7 @@ alias-wrap atom "\"\$PWD\"" 'atom-here'
 alias-wrap glances "--process-short-name"
 alias-wrap polipo "socksParentProxy=localhost:1080" 'polipo-channel-socks'
 alias-wrap pygmentize "-f terminal256 -O style=native -g" 'pcat'
+alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
 
 # pacman alias
 if whichq pacman; then
