@@ -12,6 +12,9 @@ __pycache__
 # Docs for release
 !/.docs/
 
+# Config for proxychains
+!/.proxychains/
+
 # Nautilus scripts
 !/.local/
 /.local/*
@@ -50,4 +53,9 @@ __pycache__
 # Hardware tweaks
 !/apps/hardware/
 /apps/hardware/libinput-gestures*
-/apps/hardware/keyscancodes.log
+/apps/hardware/*.log
+
+# Shadowsocks
+!/apps/shadowsocks/
+/apps/shadowsocks/*
+!/apps/shadowsocks/*.json
