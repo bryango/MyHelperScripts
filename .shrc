@@ -34,6 +34,8 @@ alias env-zh='env LANG=zh_CN.UTF-8'
 alias fc-list-zh="fc-list :lang=zh"
 # read line
 alias whilereadline='while IFS='' read -r line || [[ -n "$line" ]]'
+# set -x & trap
+set_trap="set -x; trap 'zsh -i; trap - EXIT' EXIT HUP INT QUIT PIPE TERM"
 
 # path remover
 function pathrm {
@@ -232,9 +234,8 @@ if whichq pacman; then
 #	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq) 2>&1'\
 #' | sed -E -e "s/error: no targets.*/# No orphans!/g"'
 	function pacman-autoremove {
-		local orphans
-		if orphans=$(pacman -Qdtq); then
-			sudo pacman -Rs "$orphans"
+		if pacman -Qdtq; then
+			sudo pacman -Rs $(pacman -Qdtq)
 		else
 			echo "# No orphans! Nice!"
 		fi
