@@ -23,10 +23,6 @@ thin_sp = ' '  # U+2009
 
 icon_printed = False
 exception_raising = True
-time_stamp = '* Executed: ' \
-    + datetime.now().strftime('%m-%d %H:%M') \
-    + argos_fontset + ' ' + 'size=8'
-
 reqs = requests.Session()
 reqs.headers.update(reqs_headers)
 
@@ -47,7 +43,6 @@ def debug_info(msg: str, critical=True, exception=None) -> str:
         global icon_printed
         if not icon_printed:
             msg = f' {air_symbol} \n---\n' \
-                + time_stamp + '\n---\n' \
                 + msg
             icon_printed = True
     print(msg)
@@ -252,4 +247,3 @@ if __name__ == '__main__':
 
     # Display colors
     show_palette()
-    print(time_stamp)

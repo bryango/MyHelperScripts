@@ -22,3 +22,9 @@ IFS=$IFS_BACKUP
 # Important: correct path
 cd "$HOME/.config/argos/aqi"
 ./widget.py
+
+echo   "---"
+printf "* Executed: $(date +'%m-%d %H:%M')\\\n"
+echo   "* Customize: \`constants.py\` | \
+font='Anka/Coder Condensed' size=8 \
+href='file://$(dirname "$0")/aqi/constants.py'"
