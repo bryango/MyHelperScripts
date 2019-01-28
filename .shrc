@@ -225,6 +225,8 @@ alias-wrap glances "--process-short-name"
 alias-wrap polipo "socksParentProxy=localhost:1080" 'polipo-channel-socks'
 alias-wrap pygmentize "-f terminal256 -O style=native -g" 'pcat'
 alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
+alias-wrap xset '-dpms' 'xset-dpms-off'
+alias-wrap stat '-c " | %a | %A | %N" *' 'stat-ls'
 
 # pacman alias
 if whichq pacman; then

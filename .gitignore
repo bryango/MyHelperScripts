@@ -48,7 +48,7 @@ __pycache__
 /apps/*
 !/apps/utils/
 /apps/utils/*.nb
-/apps/utils/*.ipynb
+/apps/utils/zipped/
 
 # Hardware tweaks
 !/apps/hardware/
