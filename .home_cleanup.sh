@@ -3,7 +3,7 @@
 # shellcheck disable=SC2016
 
 if [[ "$(git rev-parse --show-toplevel)" = "$HOME" ]]; then
-	>&2 echo '# This is the $HOME repo, DANGER! Exiting ...'
+	>&2 echo '# You are at $HOME, DANGER! Exiting ...'
 	exit 1
 fi
 
