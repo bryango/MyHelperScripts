@@ -33,8 +33,9 @@ alias vi=vim
 alias env-zh='env LANG=zh_CN.UTF-8'
 alias fc-list-zh="fc-list :lang=zh"
 # read line
-alias whilereadline='while IFS='' read -r line || [[ -n "$line" ]]'
+alias whilereadline='while IFS='"''"' read -r line || [[ -n "$line" ]]'
 # set -x & trap
+# shellcheck disable=SC2034
 set_trap="set -x; trap 'zsh -i; trap - EXIT' EXIT HUP INT QUIT PIPE TERM"
 
 # path remover
@@ -81,16 +82,13 @@ function uridecode {
 }
 # vi history
 function vi-history {
-	local history_path cmd='bash -c'\
-' "(command -v xdotool &>/dev/null'\
-' && xdotool key h h l'\
-' || true) &>/dev/null &"'  # Left Left Right
+	local history_path
 	if [[ -n "$ZSH_VERSION" ]] && [[ -r "$HOME/.zsh_history" ]]; then
 		history_path="$HOME/.zsh_history"
 	elif [[ -n "$BASH_VERSION" ]] && [[ -r "$HOME/.bash_history" ]]; then
 		history_path="$HOME/.bash_history"
 	fi
-	vim + "+!$cmd" "$history_path"
+	vim "+normal Gh" "$history_path"
 }
 
 # shadowsocks server
@@ -218,13 +216,14 @@ done
 
 function-wrap libreoffice '--view' "$disown_detach" 'libreoffice-view'
 function-wrap shellcheck '--color=always' '| less -RF'
+# shellcheck disable=SC2016
+alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
 alias-wrap gitkraken "--path=\"\$PWD\" $disown_detach"
 alias-wrap nautilus "\"\$PWD\" $disown_detach" 'nautilus-here'
 alias-wrap atom "\"\$PWD\"" 'atom-here'
 alias-wrap glances "--process-short-name"
 alias-wrap polipo "socksParentProxy=localhost:1080" 'polipo-channel-socks'
 alias-wrap pygmentize "-f terminal256 -O style=native -g" 'pcat'
-alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
 alias-wrap xset '-dpms' 'xset-dpms-off'
 alias-wrap stat '-c " | %a | %A | %N" *' 'stat-ls'
 
@@ -233,11 +232,9 @@ if whichq pacman; then
 	alias pacman-clean='sudo pacman -Scc'
 	alias pacman-autoclean='sudo pacman -Sc'
 	alias pacman-rmdb='rm /var/lib/pacman/sync/*'
-#	alias pacman-autoremove='sudo pacman -Rs $(pacman -Qdtq) 2>&1'\
-#' | sed -E -e "s/error: no targets.*/# No orphans!/g"'
 	function pacman-autoremove {
-		if pacman -Qdtq; then
-			sudo pacman -Rs $(pacman -Qdtq)
+		if pacman -Qdtq &>/dev/null; then
+			sudo pacman -Rs "$(pacman -Qdtq)"
 		else
 			echo "# No orphans! Nice!"
 		fi
