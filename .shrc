@@ -232,6 +232,7 @@ if whichq pacman; then
 	alias pacman-clean='sudo pacman -Scc'
 	alias pacman-autoclean='sudo pacman -Sc'
 	alias pacman-rmdb='rm /var/lib/pacman/sync/*'
+	alias pacdiff='DIFFSEARCHPATH="/boot /etc /usr" EDITOR="$EDITOR -d" DIFFPROG="sudoedit" pacdiff'
 	function pacman-autoremove {
 		if pacman -Qdtq &>/dev/null; then
 			sudo pacman -Rs "$(pacman -Qdtq)"
