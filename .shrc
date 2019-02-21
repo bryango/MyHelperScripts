@@ -28,12 +28,16 @@ alias cp='cp -i'
 alias mv='mv -i'
 # 'vi' points to vim
 alias vi=vim
+# expand aliases after sudo
+alias sudo='sudo '
 
 # Chinese
 alias env-zh='env LANG=zh_CN.UTF-8'
 alias fc-list-zh="fc-list :lang=zh"
 # read line
 alias whilereadline='while IFS='"''"' read -r line || [[ -n "$line" ]]'
+# ssh debug timestamp
+alias ts-ssh-debug="stdbuf -oL sed -E -e 's/debug1: //g' | ts '[%Y-%m-%d %H:%M:%S]'"
 # set -x & trap
 # shellcheck disable=SC2034
 set_trap="set -x; trap 'zsh -i; trap - EXIT' EXIT HUP INT QUIT PIPE TERM"
@@ -106,10 +110,10 @@ pathq "$HOME/bin" || source-try "$HOME/.profile"
 
 # pacman-update
 whichq pacman && function pacman-upgrade {
-    pacman-status "China"
-    grep --color=always '^Server' /etc/pacman.d/mirrorlist \
-        | sed -e 's/Server/Current/g'
-    sudo pacman -Syu
+	pacman-status "China"
+	grep --color=always '^Server' /etc/pacman.d/mirrorlist \
+		| sed -e 's/Server/Current/g'
+	sudo pacman -Syu
 }
 
 # shutdown check
@@ -152,16 +156,21 @@ alias thisroot=". $CERN_ROOT_BIN/thisroot.sh"
 # Only in interactive shell
 [[ $- == *i* ]] && [[ -d "$CERN_ROOT_BIN" ]] && thisroot || true
 
-# append system python packages
-export PYTHONPATH="$PYTHONPATH:/usr/lib/python3.7/site-packages"
-# prepend anaconda
+## PYTHONPATH
 CONDA_LIB_PY37="$HOME/apps/anaconda3/lib/python3.7"
-# shellcheck disable=SC2140
-[[ -d $CONDA_LIB_PY37 ]] && \
-	export PYTHONPATH="$CONDA_LIB_PY37"\
-":$CONDA_LIB_PY37/lib-dynload"\
-":$CONDA_LIB_PY37/site-packages"\
-":$PYTHONPATH"
+SYS_LIB_PY37="/usr/lib/python3.7"
+# generate paths, separated by colons
+function python-path-gen {
+	echo "$1:$1/lib-dynload:$1/site-packages"
+}
+# shellcheck disable=SC2155
+export CONDA_PYPATH=$(python-path-gen "$CONDA_LIB_PY37")
+# shellcheck disable=SC2155
+export SYS_PYPATH=$(python-path-gen "$SYS_LIB_PY37")
+# priority: anaconda
+[[ -d $CONDA_LIB_PY37 ]] && export PYTHONPATH="$PYTHONPATH:$CONDA_PYPATH"
+# backup: system
+[[ -d $SYS_LIB_PY37 ]] && export PYTHONPATH="$PYTHONPATH:$SYS_PYPATH"
 
 
 ###### 3. PRIVATE DATA ######
@@ -235,7 +244,7 @@ if whichq pacman; then
 	alias pacdiff='DIFFSEARCHPATH="/boot /etc /usr" EDITOR="$EDITOR -d" DIFFPROG="sudoedit" pacdiff'
 	function pacman-autoremove {
 		if pacman -Qdtq &>/dev/null; then
-			sudo pacman -Rs "$(pacman -Qdtq)"
+			pacman -Qdtq | sudo pacman -Rs -
 		else
 			echo "# No orphans! Nice!"
 		fi
@@ -278,3 +287,5 @@ whichq adb && \
 if [[ "$TILIX_ID" ]] || [[ "$VTE_VERSION" ]]; then
 	source /etc/profile.d/vte.sh
 fi
+
+# vim: set noexpandtab:
