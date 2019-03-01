@@ -100,13 +100,14 @@ function vi-history {
 	alias shadowsocks='/etc/init.d/shadowsocks'
 # SSH auth agent
 [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]] && [[ -n "$SSH_AUTH_SOCK" ]] && \
-	echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
+	>&2 echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
 
 
 ###### 2. LOCAL HELPERS ######
 
 # update env
-pathq "$HOME/bin" || source-try "$HOME/.profile"
+[[ -z $PROFILE_SOURCED  ]] && source-try "$HOME/.profile"
+#pathq "$HOME/bin" || source-try "$HOME/.profile"
 
 # pacman-update
 whichq pacman && function pacman-upgrade {
@@ -258,6 +259,8 @@ if whichq pacman; then
 				|| command -v "$1"
 		fi
 	}
+	function makepkg-set-tar { export PKGEXT='.pkg.tar'; }
+	[[ -n "$PKGEXT" ]] && export PKGEXT
 fi
 
 whichq lazygit && \
