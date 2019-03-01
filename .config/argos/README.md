@@ -9,7 +9,7 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 
 👉 内含脚本如下：
 
-## `./z_aqi.1000c.30m+.sh` & `./aqi/`
+## `./Z29-aqi.1000c.30m+.sh` & `./aqi/`
 
 从 [aqicn.org](https://aqicn.org) 和 [pm25.in](http://www.pm25.in/) （爬取，备用）获取空气质量指数，并显示在状态栏上 / get Air Quality Index (AQI):
 
@@ -34,11 +34,13 @@ cd ~/.config/argos; chmod +x z_aqi.1000c.30m+.sh
 cd aqi; chmod +x widget.py
 ```
 
-## `./aeject.0r.1d+.sh`
+## `./030-eject.0r.1d+.sh`
 
-分区信息及硬盘断电功能 / Disks info & power-off option<br/>
+分区信息及硬盘断电功能<br/>
+/ Disks info & power-off option<br/>
 
-方便地在状态栏启动 `lsblk-more` 与 `udisksctl-off` （见 `~/bin`） / Just an easy access to disk utils in `~/bin`
+方便地在状态栏启动 `lsblk-more` 与 `udisksctl-off` （见 `~/bin`）<br/>
+/ Just an easy access to disk utils in `~/bin`
 
 **依赖 / Dependencies:**
 
