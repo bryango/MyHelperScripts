@@ -142,37 +142,8 @@ if [ -d "$GIT_SECRETS_BIN" ]; then
 fi
 [ -z ${MANPATH+x} ] || export MANPATH="$MANPATH:$GIT_SECRETS_DIR/share/man"
 
-
-# added by Anaconda3 installer
-CONDA_BIN="$HOME/apps/anaconda3/bin"
-if [ -d "$CONDA_BIN" ]; then
-	export CONDA_BIN
-	pathq "$CONDA_BIN" || export PATH="$CONDA_BIN:$PATH"
-fi
-
-# cern ROOT
-CERN_ROOT_BIN="$HOME/apps/cern/root/bin"
-# shellcheck disable=SC2139
-alias thisroot=". $CERN_ROOT_BIN/thisroot.sh"
-# Only in interactive shell
-[[ $- == *i* ]] && [[ -d "$CERN_ROOT_BIN" ]] && thisroot || true
-
-## PYTHONPATH
-CONDA_LIB_PY37="$HOME/apps/anaconda3/lib/python3.7"
-SYS_LIB_PY37="/usr/lib/python3.7"
-# generate paths, separated by colons
-function python-path-gen {
-	echo "$1:$1/lib-dynload:$1/site-packages"
-}
-# shellcheck disable=SC2155
-export CONDA_PYPATH=$(python-path-gen "$CONDA_LIB_PY37")
-# shellcheck disable=SC2155
-export SYS_PYPATH=$(python-path-gen "$SYS_LIB_PY37")
-# priority: anaconda
-[[ -d $CONDA_LIB_PY37 ]] && export PYTHONPATH="$PYTHONPATH:$CONDA_PYPATH"
-# backup: system
-[[ -d $SYS_LIB_PY37 ]] && export PYTHONPATH="$PYTHONPATH:$SYS_PYPATH"
-
+# python
+source-try "$HOME/.python_profile"
 
 ###### 3. PRIVATE DATA ######
 
@@ -226,6 +197,7 @@ done
 
 function-wrap libreoffice '--view' "$disown_detach" 'libreoffice-view'
 function-wrap shellcheck '--color=always' '| less -RF'
+function-wrap pstree '-plUt' '| less -RFS'
 # shellcheck disable=SC2016
 alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
 alias-wrap gitkraken "--path=\"\$PWD\" $disown_detach"
@@ -245,7 +217,8 @@ if whichq pacman; then
 	alias pacdiff='DIFFSEARCHPATH="/boot /etc /usr" EDITOR="$EDITOR -d" DIFFPROG="sudoedit" pacdiff'
 	function pacman-autoremove {
 		if pacman -Qdtq &>/dev/null; then
-			pacman -Qdtq | sudo pacman -Rs -
+			# shellcheck disable=2046
+			sudo pacman -Rs $(pacman -Qtdq)
 		else
 			echo "# No orphans! Nice!"
 		fi
@@ -281,6 +254,15 @@ whichq adb && \
 			echo "# Bad arguments! 0: portrait, 1: landscape."
 			return 1
 		fi
+	}
+whichq cow && \
+	function cow-block {
+		echo "$1" >> "$HOME/.cow/blocked"
+		cat "$HOME/.cow/blocked"
+	} && \
+	function cow-direct {
+		echo "$1" >> "$HOME/.cow/direct"
+		cat "$HOME/.cow/direct"
 	}
 
 

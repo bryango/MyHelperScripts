@@ -1,0 +1,54 @@
+#!/bin/bash
+# Python path manager, meant to be SOURCED
+# shellcheck disable=2015,1090
+
+## USER DEFINED
+CONDA_HOME="$HOME/apps/anaconda3"
+CONDA_BIN="$CONDA_HOME/bin"
+
+# libaries
+CONDA_LIB_PY37="$CONDA_HOME/lib/python3.7"
+SYS_LIB_PY37="/usr/lib/python3.7"
+
+# generate $PYTHONPATH from lib
+function pythonpath-generator {
+	[[ -d $1 ]] && echo "$1:$1/lib-dynload:$1/site-packages"
+}
+
+CONDA_PYPATH=$(pythonpath-generator "$CONDA_LIB_PY37") \
+	&& export CONDA_PYPATH
+SYS_PYPATH=$(pythonpath-generator "$SYS_LIB_PY37") \
+	&& export SYS_PYPATH
+
+## PROCESSING
+# backup
+[[ -z "$PATH_PRE_PYTHON" ]] && export PATH_PRE_PYTHON=$PATH
+[[ -z "$PYTHONPATH_BAK" ]] && export PYTHONPATH_BAK=$PYTHONPATH
+
+# binaries
+if [[ -d "$CONDA_BIN" ]]; then
+	export CONDA_BIN
+	echo "$PATH" | grep -q "$1" || export PATH="$CONDA_BIN:$PATH"
+fi
+
+function pythonpath-integrator {
+	local pypath=$1
+	[[ -n $pypath ]] && \
+	if [[ -n $PYTHONPATH ]]; then
+		pypath=":$pypath"
+	fi
+	export PYTHONPATH="$PYTHONPATH$pypath"
+}
+
+# priority: anaconda
+pythonpath-integrator "$CONDA_PYPATH"
+# backup: system
+pythonpath-integrator "$SYS_PYPATH"
+
+export PATH PYTHONPATH
+
+function pythonpath-revert {
+	export PATH=$PATH_PRE_PYTHON PYTHONPATH=$PYTHONPATH_BAK
+}
+
+# vim: set noexpandtab:
