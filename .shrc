@@ -98,9 +98,12 @@ function vi-history {
 # shadowsocks server
 [[ -r /etc/init.d/shadowsocks ]] && \
 	alias shadowsocks='/etc/init.d/shadowsocks'
-# SSH auth agent
-[[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]] && [[ -n "$SSH_AUTH_SOCK" ]] && \
-	>&2 echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
+# SSH info
+if [[ -n $SSH_CONNECTION ]] || [[ -n $SSH_CLIENT ]] || [[ -n $SSH_TTY ]]; then
+	# auth agent
+	[[ -n $SSH_AUTH_SOCK ]] && \
+		>&2 echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
+fi
 
 
 ###### 2. LOCAL HELPERS ######
@@ -200,6 +203,8 @@ function-wrap shellcheck '--color=always' '| less -RF'
 function-wrap pstree '-plUt' '| less -RFS'
 # shellcheck disable=SC2016
 alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
+# shellcheck disable=SC2016
+alias-wrap vncserver '--PasswordFile="$HOME/.vnc/passwd"'
 alias-wrap gitkraken "--path=\"\$PWD\" $disown_detach"
 alias-wrap nautilus "\"\$PWD\" $disown_detach" 'nautilus-here'
 alias-wrap atom "\"\$PWD\"" 'atom-here'
@@ -242,6 +247,8 @@ whichq shalarm && \
 	function shalarm-timer { shalarm "$(date +%H%M -d "$@")"; }
 whichq powertop && \
 	alias powertop='sudo powertop'
+whichq nethogs && \
+	alias nethog='sudo nethogs'
 whichq adb && \
 	function adb-rotate {
 		if [[ $# -eq 0 ]]; then
@@ -257,12 +264,16 @@ whichq adb && \
 	}
 whichq cow && \
 	function cow-block {
-		echo "$1" >> "$HOME/.cow/blocked"
-		cat "$HOME/.cow/blocked"
+		local config_file="$HOME/.cow/blocked"
+		grep -q "$1" "$config_file" \
+			|| echo "$1" >> "$config_file"
+		vi "$config_file"
 	} && \
 	function cow-direct {
-		echo "$1" >> "$HOME/.cow/direct"
-		cat "$HOME/.cow/direct"
+		local config_file="$HOME/.cow/direct"
+		grep -q "$1" "$config_file" \
+			|| echo "$1" >> "$config_file"
+		vi "$config_file"
 	}
 
 

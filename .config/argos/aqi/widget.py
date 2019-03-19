@@ -6,7 +6,7 @@ import sys
 import os
 import re
 import pandas as pd
-from datetime import datetime
+# from datetime import datetime
 from bs4 import BeautifulSoup
 from constants import places, proxies
 from helpers import (
@@ -16,7 +16,7 @@ from helpers import (
 
 # Unicodes (r'[^\x00-\x7F]'+)
 # ... excluding Chinese
-air_symbol = '🜁'
+air_symbol = ''  # '🜁'
 dot = '⏺'
 bullet = '▶'
 thin_sp = ' '  # U+2009

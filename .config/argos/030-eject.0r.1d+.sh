@@ -21,4 +21,3 @@ if [ "$ARGOS_MENU_OPEN" == "true" ]; then
 else
 	echo "Loading... | $fontset $bashcmd"
 fi
-
