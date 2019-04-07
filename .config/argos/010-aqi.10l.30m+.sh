@@ -3,7 +3,7 @@
 
 # Don't bother when no network
 if nmcli --get-values=STATE general status \
-	| grep --quiet -E 'local only|disconnected'; then
+	| grep --quiet -E 'local only|disconnected|connecting'; then
 		echo ""
 		echo "---"
 		exit 0
@@ -13,10 +13,12 @@ fi
 # shellcheck disable=1090
 source "$HOME/.shrc"
 export TOKEN_AQICN
+
 IFS_BACKUP=$IFS
 IFS=$'\n' && echo "${!ARGOS*}" \
-	| while IFS= read -r var || [[ -n "$var" ]]; do
-		export "${var?}";
+	| while IFS= read -r var && [[ -n "$var" ]] || [[ -n "$var" ]]; do
+		>&2 echo "# export ${var?}"
+		export "${var?}"
 	done
 IFS=$IFS_BACKUP
 
@@ -30,8 +32,12 @@ appid=$TOKEN_OPENWEATHERMAP\
 		| tr ',{}[]' '\n' \
 		| grep 'description' \
 		| tr -d '"' \
-		| sed -E 's/description://g'
+		| sed -E 's/description://g' \
+		| tr '\n' '&' \
+		| sed -E 's|&$|\n|g' \
+		| sed -E 's|&| / |g'
 	)
+	[[ -z $weather ]] && weather='🜁'
 	printf %s "$weather"
 fi
 

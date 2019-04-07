@@ -9,7 +9,7 @@ Argos 脚本，在 GNOME 状态栏上显示各种有趣的东西 / Argos scripts
 
 👉 内含脚本如下：
 
-## `./Z29-aqi.1000c.30m+.sh` & `./aqi/`
+## `./010-aqi.10l.30m+.sh` & `./aqi/`
 
 从 [aqicn.org](https://aqicn.org) 和 [pm25.in](http://www.pm25.in/) （爬取，备用）获取空气质量指数，并显示在状态栏上 / get Air Quality Index (AQI):
 

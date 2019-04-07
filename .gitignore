@@ -31,9 +31,14 @@ __pycache__
 /.local/share/applications/chrome-*
 /.local/share/applications/anbox/
 
-# Argos scripts
+## Configs
 !/.config/
 /.config/*
+
+# Autostart
+!/.config/autostart/
+
+# Argos scripts
 !/.config/argos/
 
 # User systemd

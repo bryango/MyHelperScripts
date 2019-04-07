@@ -114,9 +114,20 @@ fi
 
 # pacman-update
 whichq pacman && function pacman-upgrade {
-	pacman-status "China"
-	grep --color=always '^Server' /etc/pacman.d/mirrorlist \
-		| sed -e 's/Server/Current/g'
+	local loc="China" mirror host
+
+	mirror=$(grep '^Server' /etc/pacman.d/mirrorlist \
+		| sed -E -e 's/Server[ =]+//g' \
+		| grep --color=none --only-matching -E '^[^\$]+')
+	echo ":: Current mirror: $mirror"
+
+	host=$(sed -E 's|.*://([^/]+)/[^/].*$|\1|g' <<< "$mirror")
+	pacman-status "$loc" \
+		| grep --color=always -E "[^ ]*$host""[^ ]*|$" \
+		| sed -E 's/([[ ])0([],])/\1MARK\2/g' \
+		| grep --color=always -E 'MARK|$' \
+		| sed -e 's/MARK/0/g'
+	echo ":: Upgrading..."
 	sudo pacman -Syu
 }
 
@@ -244,11 +255,13 @@ fi
 whichq lazygit && \
 	function git { [[ $# -eq 0 ]] && lazygit || /usr/bin/git "$@"; }
 whichq shalarm && \
-	function shalarm-timer { shalarm "$(date +%H%M -d "$@")"; }
+	function shalarm-timer { shalarm "$(date +%H%M%S -d "$@")"; }
 whichq powertop && \
 	alias powertop='sudo powertop'
 whichq nethogs && \
 	alias nethog='sudo nethogs'
+whichq bup && \
+	alias bup="PYTHONPATH='' bup"
 whichq adb && \
 	function adb-rotate {
 		if [[ $# -eq 0 ]]; then
