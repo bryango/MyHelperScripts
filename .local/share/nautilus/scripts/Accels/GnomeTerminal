@@ -1,0 +1,4 @@
+#!/bin/bash
+# Open terminal here
+
+x-terminal-emulator

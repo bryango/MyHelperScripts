@@ -1,0 +1,7 @@
+#!/usr/bin/env python3
+# Parse percent-encoded URL
+
+import sys
+import urllib.parse as urlparse
+
+print(urlparse.unquote(sys.argv[1]))

@@ -1,0 +1,4 @@
+#!/bin/bash
+# LibreOffice View Only
+
+libreoffice --view $NAUTILUS_SCRIPT_SELECTED_URIS &

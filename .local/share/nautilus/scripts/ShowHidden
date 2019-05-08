@@ -1,0 +1,11 @@
+#!/bin/bash
+# Show hidden files
+
+dconf write /org/gtk/settings/file-chooser/show-hidden true
+status=$(dconf read /org/gtk/settings/file-chooser/show-hidden)
+
+if [ "$status" = "true" ]; then
+	/home/bryan/bin/showosd view-hidden-symbolic --label 'Show Hidden'
+else
+	/home/bryan/bin/showosd security-low-symbolic --label 'Show Hidden - FALSE'
+fi

@@ -1,0 +1,120 @@
+#!/bin/python3
+# AppChooser, forked from <LordYuuma/Nautilus-Open-With...>
+
+import os
+import sys
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Nautilus', '3.0')
+gi.require_version('Notify', '0.7')
+from gi.repository import GLib, Gio, Gtk, Notify  # noqa: E402
+
+
+def get_type(filename: str) -> str:
+    ## legacy method (incomplete)
+    # content_type, val = Gio.content_type_guess(
+    #     f'filename={filename}',
+    #     data=None
+    # )
+    f = Gio.File.new_for_uri(filename)
+    info_spec = 'standard::content-type'
+    content_type = f.query_info(
+        info_spec, 0, None
+    ).get_attribute_as_string(
+        info_spec
+    )
+    return content_type
+
+
+selected_lst = os.environ['NAUTILUS_SCRIPT_SELECTED_URIS'] \
+    .strip() \
+    .split('\n')
+types_lst = [ get_type(file) for file in selected_lst ]
+types_set = list(set(types_lst))
+
+types_no_octet = [ type for type in types_set
+                   if type != 'application/octet-stream' ]
+if types_no_octet:  # When there's anything other than octet-stream
+    types_set = types_no_octet  # ... use that instead of octet-stream
+
+if 'NAUTILUS_DEBUG' in os.environ:
+    print(
+        selected_lst,
+        types_lst,
+        types_set
+    )
+
+if len(types_set) == 0:
+    import subprocess
+    subprocess.run(["showosd", "non-starred-symbolic", "--label", "Unknown"])
+    sys.exit()
+elif len(types_set) == 1:
+    content_type = types_set[0]
+else:  # Majority type
+    content_type = max(types_lst, key=types_lst.count)
+
+
+class appChooser(object):
+    def __init__(self, content_type):
+        self.dialog = Gtk.AppChooserDialog.new_for_content_type(
+            None, 0, content_type
+        )
+        self.result = self.dialog.run()
+
+
+chooseNow = appChooser(content_type)
+if chooseNow.result == Gtk.ResponseType.OK:
+    app = chooseNow.dialog.get_app_info()
+    if app:
+        fs = [Gio.File.new_for_uri(file)
+              for file in selected_lst
+              if get_type(file) == content_type]
+        app.launch(fs)
+chooseNow.dialog.destroy()
+
+with open(os.environ['HOME'] + '/.config/mimeapps.list') as mimefile:
+    mimelist = mimefile.read().strip().split('\n')
+
+
+def simplify_mime(entry: str):
+    if entry == '[Default Applications]':
+        return 1
+    elif entry == '[Added Associations]':
+        return 0
+    elif content_type in entry:
+        return content_type
+
+
+mimelist = [simplify_mime(entry) for entry in mimelist
+            if ('[' in entry) or (content_type + '=' in entry)]
+for i, entry in enumerate(mimelist):
+    if entry == content_type and mimelist[i - 1] == 1:
+        sys.exit()
+
+
+# <codecell>
+def action_callback(notif):
+    exit_code = notif.get_closed_reason()
+    global dialog_shown
+    if exit_code == 2 and not dialog_shown:
+        dialog_shown = True
+        chooseDefault = appChooser(content_type)
+        if chooseDefault.result == Gtk.ResponseType.OK:
+            app = chooseDefault.dialog.get_app_info()
+            if app:
+                app.set_as_default_for_type(content_type)
+        chooseDefault.dialog.destroy()
+    Gtk.main_quit()
+
+
+dialog_shown = False
+Notify.init('DefaultApp')
+notif = Notify.Notification.new(
+    f'Default App for `{content_type}` NOT Set!',
+    '<i>Click to choose, or ignore to use cached values.</i>'
+)
+notif.set_hint('transient', GLib.Variant.new_int32(1))
+# notif.add_action('appchooser', 'Choose', action_callback)
+notif.connect('closed', action_callback)
+notif.show()
+Gtk.main()

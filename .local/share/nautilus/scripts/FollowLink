@@ -1,0 +1,30 @@
+#!/bin/bash
+# Follow file link
+
+function showmsg {
+	showosd network-offline-symbolic --label "$1"
+}
+
+if [[ -z $NAUTILUS_SCRIPT_SELECTED_FILE_PATHS ]]; then
+	showmsg 'Path NOT Extracted'
+	exit 1
+fi
+
+if file=$(head -1 <<< "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS") \
+	&& link=$(readlink -f "$file"); then :;
+else
+	showmsg 'Link NOT Read'
+	exit 1
+fi
+
+{ nautilus --select "$link" & } &
+
+return_code=$(dunstify "ReadLink" "<i>$link</i>" \
+	--icon=insert-link-symbolic \
+	--action='2,Copy' \
+	--hints=int:transient:1)
+
+[[ "$return_code" -eq 2 ]] \
+	&& xclip -selection clipboard -rmlastnl <<< "$link" \
+
+# vim: set noexpandtab:

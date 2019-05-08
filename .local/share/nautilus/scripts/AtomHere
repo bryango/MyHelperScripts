@@ -1,0 +1,12 @@
+#!/bin/bash
+# Open atom here
+
+# dev env setup
+source ~/.shrc
+
+# require: `~/bin/python-urldecode`
+dirpath=$(python-urldecode "$NAUTILUS_SCRIPT_CURRENT_URI" \
+    | sed -e 's|file://||g'
+)
+
+exec atom "$dirpath"

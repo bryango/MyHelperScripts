@@ -1,0 +1,28 @@
+#!/usr/bin/python3
+
+import dbus
+import argparse
+
+# Instantiate the parser
+argparser = argparse.ArgumentParser(
+    description='Show GNOME OSD'
+)
+argparser.add_argument('icon', type=str, help='icon name, required')
+opt_args = {
+    '--label': str,
+    '--level': float,
+    '--max_level': float,
+    '--monitor': int
+}  # See: <https://gitlab.gnome.org/GNOME/gnome-shell/> ./js/ui/shellDBus.js
+for key, value in opt_args.items():
+    argparser.add_argument(key, type=value, default=argparse.SUPPRESS)
+
+# Parse arguments
+args_dict = vars(argparser.parse_args())
+
+# Getting the dbus interface to communicate with gnome's OSD
+session_bus = dbus.SessionBus()
+proxy = session_bus.get_object('org.gnome.Shell', '/org/gnome/Shell')
+interface = dbus.Interface(proxy, 'org.gnome.Shell')
+
+interface.ShowOSD(args_dict)

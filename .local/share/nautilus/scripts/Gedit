@@ -1,0 +1,4 @@
+#!/bin/bash
+# Open with gedit
+
+gedit $NAUTILUS_SCRIPT_SELECTED_URIS &
