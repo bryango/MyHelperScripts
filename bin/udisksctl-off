@@ -3,8 +3,8 @@
 
 # Exit sequence
 trap 'echo ""; echo "* Exiting..."; sleep .5; exit' EXIT
-# Maximize window
-command -v xdotool &>/dev/null && xdotool key super+Up
+# # Maximize window
+# command -v xdotool &>/dev/null && xdotool key super+Up
 
 # Legacy command
 #df -h -x tmpfs | sort -h -r
@@ -30,9 +30,8 @@ root_dev=$(
 #     *     ) udisksctl power-off -b /dev/$sdx  ;;
 #esac
 
-if [ "$sdx" = "$root_dev" ] || [ ! -z "$mounted_lst"  ]; then
+if [ "$sdx" = "$root_dev" ] || [ -n "$mounted_lst"  ]; then
 	echo "* Mounted partitions OR illegal sdx! Aborted."
 else
 	udisksctl power-off -b "/dev/$sdx"
 fi
-

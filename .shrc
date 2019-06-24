@@ -8,6 +8,9 @@
 
 ###### 1. UNIVERSAL HELPERS ######
 
+# no ctrl-s flow control
+stty -ixon
+
 export EDITOR=/usr/bin/vim
 export PAGER="less -RF"
 
@@ -78,12 +81,12 @@ function ex {
 		return 1
 	fi
 }
-# file:// decode
-function uridecode {
-	: "${*//+/ }"
-	echo -e "${_//%/\\x}" \
-		| sed -e 's/file:\/\///g'
-}
+## file:// decode
+#function uridecode {
+#	: "${*//+/ }"
+#	echo -e "${_//%/\\x}" \
+#		| sed -e 's/file:\/\///g'
+#}
 # vi history
 function vi-history {
 	local history_path
@@ -104,6 +107,10 @@ if [[ -n $SSH_CONNECTION ]] || [[ -n $SSH_CLIENT ]] || [[ -n $SSH_TTY ]]; then
 	[[ -n $SSH_AUTH_SOCK ]] && \
 		>&2 echo "# SSH_AUTH_SOCK=$SSH_AUTH_SOCK" || true
 fi
+# proxy info
+if proxy_envs=$(env | grep proxy); then
+	>&2 sed -E 's/^/# /g' <<< "$proxy_envs"
+fi
 
 
 ###### 2. LOCAL HELPERS ######
@@ -114,16 +121,16 @@ fi
 
 # pacman-update
 whichq pacman && function pacman-upgrade {
-	local loc="China" mirror host
+	local loc="China" mirror hostname
 
 	mirror=$(grep '^Server' /etc/pacman.d/mirrorlist \
 		| sed -E -e 's/Server[ =]+//g' \
 		| grep --color=none --only-matching -E '^[^\$]+')
 	echo ":: Current mirror: $mirror"
 
-	host=$(sed -E 's|.*://([^/]+)/[^/].*$|\1|g' <<< "$mirror")
+	hostname=$(sed -E 's|.*://([^/]+)/[^/].*$|\1|g' <<< "$mirror")
 	pacman-status "$loc" \
-		| grep --color=always -E "[^ ]*$host""[^ ]*|$" \
+		| GREP_COLOR='1;33' grep --color=always -E "[^ ]*$hostname""[^ ]*|$" \
 		| sed -E 's/([[ ])0([],])/\1MARK\2/g' \
 		| grep --color=always -E 'MARK|$' \
 		| sed -e 's/MARK/0/g'
@@ -203,13 +210,14 @@ function alias-wrap {  # cmd, opt, name
 disown_detach='&>/dev/null & disown'
 noisy_apps=(
 	'gedit'
-	'google-chrome-stable'
 )
 for app in "${noisy_apps[@]}"; do
 	function-wrap "$app" '' "$disown_detach"
 done
 
 function-wrap libreoffice '--view' "$disown_detach" 'libreoffice-view'
+function-wrap google-chrome-stable '' "$disown_detach" 'google-chrome'
+function-wrap xdg-open '' "$disown_detach" 'open'
 function-wrap shellcheck '--color=always' '| less -RF'
 function-wrap pstree '-plUt' '| less -RFS'
 # shellcheck disable=SC2016

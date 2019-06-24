@@ -12,7 +12,7 @@ fi
 # Update python path & tokens
 # shellcheck disable=1090
 source "$HOME/.shrc"
-export TOKEN_AQICN
+export TOKEN_AQICN TOKEN_OPENWEATHERMAP
 
 IFS_BACKUP=$IFS
 IFS=$'\n' && echo "${!ARGOS*}" \
@@ -23,20 +23,7 @@ IFS=$'\n' && echo "${!ARGOS*}" \
 IFS=$IFS_BACKUP
 
 if [[ -n $TOKEN_OPENWEATHERMAP ]] && [[ -n $LOCATION_OPENWEATHERMAP ]]; then
-	weather=$(
-	curl --silent "https://api.openweathermap.org/data/2.5/weather?\
-appid=$TOKEN_OPENWEATHERMAP\
-&q=$LOCATION_OPENWEATHERMAP\
-&units=metric&lang=zh_cn" \
-\
-		| tr ',{}[]' '\n' \
-		| grep 'description' \
-		| tr -d '"' \
-		| sed -E 's/description://g' \
-		| tr '\n' '&' \
-		| sed -E 's|&$|\n|g' \
-		| sed -E 's|&| / |g'
-	)
+	weather=$(curl-openweather "q=$LOCATION_OPENWEATHERMAP")
 	[[ -z $weather ]] && weather='🜁'
 	printf %s "$weather"
 fi

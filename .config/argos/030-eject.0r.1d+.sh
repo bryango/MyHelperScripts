@@ -5,7 +5,7 @@ echo "| iconName=media-removable"
 echo "---"
 
 fontset="font='Anka/Coder Condensed' size=11.5"
-bashcmd="bash='gnome-terminal -- udisksctl-off' terminal=false"
+bashcmd="bash='gnome-terminal --maximize -- udisksctl-off' terminal=false"
 
 if [ "$ARGOS_MENU_OPEN" == "true" ]; then
 

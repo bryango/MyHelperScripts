@@ -6,4 +6,3 @@ lsblk "$@" --output \
 	HOTPLUG,NAME,STATE,ROTA,MOUNTPOINT,LABEL,SIZE,FSTYPE,MODEL \
 	| grep -E --color=always ' 1 |$' \
 	| GREP_COLOR='01;33' grep -E --color=always '/run/media/|$'
-

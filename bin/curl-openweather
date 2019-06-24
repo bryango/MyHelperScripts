@@ -1,0 +1,42 @@
+#!/bin/bash
+# Curl openweathermap
+
+# get token
+# shellcheck disable=SC1090
+source "$HOME/.tokens"
+[[ -z "$TOKEN_OPENWEATHERMAP" ]] \
+	&& >&2 echo "### No token!"
+
+# shellcheck disable=2140
+pluming="tee \
+    | tr ',{}[]' '\n' \
+    | grep 'description' \
+    | tr -d '\"' \
+    | sed -E 's/description://g' \
+    | tr '\n' '&' \
+    | sed -E 's|&$|\n|g' \
+    | sed -E 's|&| / |g' \
+"
+
+# no pluming with `--json`
+[[ "$1" == "--json" ]] \
+	&& pluming='tee' \
+	&& shift
+
+# contruct specifications
+spec="appid=$TOKEN_OPENWEATHERMAP&units=metric&lang=zh_cn"
+
+[[ -n $LOCATION_OPENWEATHERMAP ]] \
+	&& spec="$spec&q=$LOCATION_OPENWEATHERMAP"
+[[ $# -gt 0 ]] \
+	&& spec="$spec&$1" \
+
+# curl ipinfo
+# >&2 echo "### Spec: $spec"
+curl --silent --connect-timeout 3 \
+	"https://api.openweathermap.org/data/2.5/weather?$spec" \
+		| eval "$pluming"
+
+exit "${PIPESTATUS[0]}"
+
+# vim: set noexpandtab:

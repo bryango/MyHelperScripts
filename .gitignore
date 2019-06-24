@@ -15,18 +15,28 @@ __pycache__
 # Config for proxychains
 !/.proxychains/
 
-# Nautilus scripts
+# Templates
+!/Templates/
+
+# Documentations
+!/doc/
+
+# Local share
 !/.local/
 /.local/*
 !/.local/share/
 /.local/share/*
+
+# Nautilus scripts
 !/.local/share/nautilus/
 /.local/share/nautilus/*
 !/.local/share/nautilus/scripts/
 
+# Nautilus python extensions
+!/.local/share/nautilus-python/
+
 # Applications
 !/.local/share/applications/
-/.local/share/applications/*.list
 /.local/share/applications/*.cache
 /.local/share/applications/chrome-*
 /.local/share/applications/anbox/
@@ -54,6 +64,9 @@ __pycache__
 !/apps/utils/
 /apps/utils/*.nb
 /apps/utils/zipped/
+
+# Symlink to dictionaries
+!/apps/dicts/
 
 # Hardware tweaks
 !/apps/hardware/
