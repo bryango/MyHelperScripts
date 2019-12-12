@@ -29,7 +29,7 @@ spec="appid=$TOKEN_OPENWEATHERMAP&units=metric&lang=zh_cn"
 [[ -n $LOCATION_OPENWEATHERMAP ]] \
 	&& spec="$spec&q=$LOCATION_OPENWEATHERMAP"
 [[ $# -gt 0 ]] \
-	&& spec="$spec&$1" \
+	&& spec="$spec&$1"
 
 # curl ipinfo
 # >&2 echo "### Spec: $spec"

@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+# Report manjaro mirror status, given country
+# ... extracted and adapted from pacman_mirrors
+
+# %% basic setup
+import urllib.request
+import json
+import sys
+import os
+from http.client import HTTPException
+from urllib.error import URLError
+import ssl
+
+sys.path.append('/usr/lib/python3.7/site-packages/')
+
+country = 'China'
+if __name__ == '__main__' and len(sys.argv) > 1 and (
+    # ignore when using ipython
+    os.path.basename(sys.argv[0]) != 'ipykernel_launcher.py'
+):
+    country = sys.argv[1].replace(" ", "_")
+print(f':: Input country: {country}')
+
+
+# %% import from `pacman_mirrors` & send request
+from pacman_mirrors import __version__                   # noqa: E402
+from pacman_mirrors.config import configuration as conf  # noqa: E402
+
+headers = {
+    "User-Agent": "{}{}".format(conf.USER_AGENT, __version__)
+}
+
+config = {
+    "url_status_json": conf.URL_STATUS_JSON,
+}
+
+try:
+    # To NOT verify cert, not so dangerous here,
+    # ... could be VERY RISKY elsewhere! Use wisely!
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+    req = urllib.request.Request(
+        url=config["url_status_json"],
+        headers=headers
+    )
+    with urllib.request.urlopen(req, context=ctx) as response:
+        statuslist = json.loads(response.read().decode("utf8"))
+except (HTTPException, json.JSONDecodeError, URLError) as err:  # noqa: F821
+    print(f':: NOTE: {err} - Please check connection. ')
+    sys.exit(1)
+
+
+# %% process status
+country_range = False
+country_sublist = []
+for entry in statuslist:
+    if entry['country'] == country:
+        country_range = True
+        country_sublist += [entry]
+    elif country_range:
+        break
+
+CODE_NOT_SYNCED = '999:00'
+
+
+def rank_key(entry: dict) -> float:
+    """ Calculates ranking of given mirror. """
+    try:  # Scoring: [1, 1, 1] -> 111
+        base_score = int(''.join(
+            map(str, entry['branches'])
+        ))
+    except ValueError:  # Encounters `-1` status
+        base_score = -100
+
+    if entry['last_sync'] == -1:
+        entry['last_sync'] = CODE_NOT_SYNCED
+
+    return base_score - (
+        lambda t: (t[0] * 60 + t[1]) / 1.e6
+    )(list(map(
+        int, entry['last_sync'].split(':')
+    )))  # Latest-synced ranks first
+
+
+country_sublist.sort(
+    key=rank_key,
+    reverse=True
+)
+
+titles = [
+    'branches', 'last_sync', 'protocols', 'url'
+]
+
+
+def format_data(value, key: str):
+    if key == 'protocols':
+        return str(value).replace("'", "")
+    if key == 'last_sync':
+        if value == CODE_NOT_SYNCED:
+            return 'N/A'
+
+    return value
+
+
+data = [
+    [ format_data(entry.get(key, 'N/A'), key) for key in titles ]
+    for entry in country_sublist
+]
+data_titled = [titles, *data]
+
+TABLE_MARGIN = ' |  '
+TABLE_SEP = '   '
+
+column_widths = [
+    max(
+        len(str(entry))
+        for entry in column
+    ) for column in zip(*data_titled)
+]
+for entry in data_titled:
+    print(TABLE_MARGIN, end='')
+    print(TABLE_SEP.join(
+        str(value).ljust(width)
+        for value, width in zip(entry, column_widths)
+    ))
+
+
+# # %% data presentation using pandas
+# import pandas as pd  # noqa: E402
+# df = pd.read_json(
+#     json.dumps(country_sublist)
+# )
+# try:
+#     df.drop(['country'], axis=1, inplace=True)
+#     print(df.to_string())
+# except KeyError:
+#     print(f':: Note: \"{country}\" not found. Try a legit country. ')

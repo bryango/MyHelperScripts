@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# Show all uninstalled optional dependencies
+
+# <codecell>
+import os
+import re
+
+# <codecell>
+optdeps = os.popen("expac '%o' --delim ' ' --listdelim ' '").read().split()
+installed = os.popen("expac '%n' --delim ' '").read().split()
+optdeps = [pkg for pkg in optdeps if pkg not in installed]
+
+
+# <codecell>
+def output_filter(line: str) -> bool:
+    if not line.startswith('\t'):
+        # Main package line
+        return True
+
+    # OptDep Name
+    pkg = re.search('^\t.+:|$', line).group().lstrip('\t').rstrip(':')
+    if pkg == '':
+        raise ValueError('Unknown Opt Dep format,'
+                         ' further investigation needed')
+    elif pkg in optdeps:
+        return True
+    else:
+        return False
+
+
+display_str = os.popen(r"expac '%n\t%O' --listdelim '\n\t'"
+                       r" | grep -P -v '\t$'"
+                       r" | sed -r -e 's/(.+)\t/\1\n\t/g'").read()
+lines = list(filter(output_filter, display_str.split('\n')))
+total = len(lines)
+display_str = '\n'.join([
+    line for (index, line) in enumerate(lines)
+    if line.startswith('\t')
+    or lines[(index + 1) % total].startswith('\t')
+])
+print(display_str)

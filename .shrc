@@ -32,18 +32,40 @@ alias mv='mv -i'
 # 'vi' points to vim
 alias vi=vim
 # expand aliases after sudo
-alias sudo='sudo '
+alias sudo='PYTHONPATH= sudo '
 
-# Chinese
+# Chinese & UTF8
 alias env-zh='env LANG=zh_CN.UTF-8'
 alias fc-list-zh="fc-list :lang=zh"
+[[ -n $LANG ]] && export LANG || export LANG=en_US.UTF-8
 # read line
 alias whilereadline='while IFS='"''"' read -r line || [[ -n "$line" ]]'
 # ssh debug timestamp
 alias ts-ssh-debug="stdbuf -oL sed -E -e 's/debug1: //g' | ts '[%Y-%m-%d %H:%M:%S]'"
+# ipv6
+function sysctl-disable-ipv6 {
+	[[ $1 -eq 0 ]] || [[ $1 -eq 1 ]] \
+		&& sudo sysctl -w net.ipv6.conf.all.disable_ipv6="$1"
+}
+
 # set -x & trap
+set_trace="set -x"
+trap_all="trap 'zsh -i; trap - EXIT' EXIT HUP INT QUIT PIPE TERM"
 # shellcheck disable=SC2034
-set_trap="set -x; trap 'zsh -i; trap - EXIT' EXIT HUP INT QUIT PIPE TERM"
+set_trap="$set_trace; $trap_all"
+
+# kill family
+function kill-family {  # kill $cmd, protect $pid
+	# shellcheck disable=2207
+	IFS=$'\n' parents=( $(pgrep --full "$1" | grep -v "^$2$") )
+	children=()
+	for parent in "${parents[@]}"; do
+		# shellcheck disable=2207
+		IFS=$'\n' children+=( $(pgrep -P "$parent") )
+	done
+	kill -9 "${parents[@]}"
+	kill -9 "${children[@]}"
+}
 
 # path remover
 function pathrm {
@@ -116,27 +138,8 @@ fi
 ###### 2. LOCAL HELPERS ######
 
 # update env
-[[ -z $PROFILE_SOURCED  ]] && source-try "$HOME/.profile"
+[[ -z $PROFILE_SOURCED	]] && source-try "$HOME/.profile"
 #pathq "$HOME/bin" || source-try "$HOME/.profile"
-
-# pacman-update
-whichq pacman && function pacman-upgrade {
-	local loc="China" mirror hostname
-
-	mirror=$(grep '^Server' /etc/pacman.d/mirrorlist \
-		| sed -E -e 's/Server[ =]+//g' \
-		| grep --color=none --only-matching -E '^[^\$]+')
-	echo ":: Current mirror: $mirror"
-
-	hostname=$(sed -E 's|.*://([^/]+)/[^/].*$|\1|g' <<< "$mirror")
-	pacman-status "$loc" \
-		| GREP_COLOR='1;33' grep --color=always -E "[^ ]*$hostname""[^ ]*|$" \
-		| sed -E 's/([[ ])0([],])/\1MARK\2/g' \
-		| grep --color=always -E 'MARK|$' \
-		| sed -e 's/MARK/0/g'
-	echo ":: Upgrading..."
-	sudo pacman -Syu
-}
 
 # shutdown check
 if whichq shutdown-checklist; then
@@ -214,12 +217,15 @@ noisy_apps=(
 for app in "${noisy_apps[@]}"; do
 	function-wrap "$app" '' "$disown_detach"
 done
+unset app
 
 function-wrap libreoffice '--view' "$disown_detach" 'libreoffice-view'
 function-wrap google-chrome-stable '' "$disown_detach" 'google-chrome'
 function-wrap xdg-open '' "$disown_detach" 'open'
 function-wrap shellcheck '--color=always' '| less -RF'
 function-wrap pstree '-plUt' '| less -RFS'
+# shellcheck disable=SC2016
+function-wrap pgrep '--uid="$(whoami)" --list-full sshd' '| grep -v $$' 'pgrep-sshd'
 # shellcheck disable=SC2016
 alias-wrap x0vncserver '--PasswordFile="$HOME/.vnc/passwd"'
 # shellcheck disable=SC2016
@@ -296,6 +302,11 @@ whichq cow && \
 			|| echo "$1" >> "$config_file"
 		vi "$config_file"
 	}
+whichq fuck && [[ $- == *i* ]] && \
+	eval "$(thefuck --alias)"
+
+# add kite files after its auto update
+alias kite-add-update="git add --patch '*kite*'"
 
 
 ###### AT LAST ######

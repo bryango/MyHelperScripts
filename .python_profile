@@ -7,17 +7,17 @@ CONDA_HOME="$HOME/apps/anaconda3"
 CONDA_BIN="$CONDA_HOME/bin"
 
 # libaries
-CONDA_LIB_PY37="$CONDA_HOME/lib/python3.7"
-SYS_LIB_PY37="/usr/lib/python3.7"
+CONDA_LIB="$CONDA_HOME/lib/python3.7"
+SYS_LIB="/usr/lib/python3.7"
 
 # generate $PYTHONPATH from lib
 function pythonpath-generator {
 	[[ -d $1 ]] && echo "$1:$1/lib-dynload:$1/site-packages"
 }
 
-CONDA_PYPATH=$(pythonpath-generator "$CONDA_LIB_PY37") \
+CONDA_PYPATH=$(pythonpath-generator "$CONDA_LIB") \
 	&& export CONDA_PYPATH
-SYS_PYPATH=$(pythonpath-generator "$SYS_LIB_PY37") \
+SYS_PYPATH=$(pythonpath-generator "$SYS_LIB") \
 	&& export SYS_PYPATH
 
 ## PROCESSING
@@ -28,7 +28,7 @@ SYS_PYPATH=$(pythonpath-generator "$SYS_LIB_PY37") \
 # binaries
 if [[ -d "$CONDA_BIN" ]]; then
 	export CONDA_BIN
-	echo "$PATH" | grep -q "$1" || export PATH="$CONDA_BIN:$PATH"
+	echo "$PATH" | grep -q "$CONDA_BIN" || export PATH="$CONDA_BIN:$PATH"
 fi
 
 function pythonpath-integrator {

@@ -4,7 +4,7 @@
 echo "| iconName=media-removable"
 echo "---"
 
-fontset="font='Anka/Coder Condensed' size=11.5"
+fontset="size=10.5"
 bashcmd="bash='gnome-terminal --maximize -- udisksctl-off' terminal=false"
 
 if [ "$ARGOS_MENU_OPEN" == "true" ]; then
@@ -16,7 +16,7 @@ if [ "$ARGOS_MENU_OPEN" == "true" ]; then
 		| sed -e 's/ *\\n/\\n/g' \
 		| head -c -2)  # Remove trailing whitespace & the last newline
 
-	echo "<span weight='bold'>$drives_info</span> | $fontset $bashcmd"
+	echo "<tt>$drives_info</tt> | $fontset $bashcmd"
 
 else
 	echo "Loading... | $fontset $bashcmd"

@@ -21,6 +21,9 @@ __pycache__
 # Documentations
 !/doc/
 
+# Vim
+!/.vim/autoload/
+
 # Local share
 !/.local/
 /.local/*
@@ -58,22 +61,5 @@ __pycache__
 # User bin
 !/bin/
 
-# User utils
+# User apps
 !/apps/
-/apps/*
-!/apps/utils/
-/apps/utils/*.nb
-/apps/utils/zipped/
-
-# Symlink to dictionaries
-!/apps/dicts/
-
-# Hardware tweaks
-!/apps/hardware/
-/apps/hardware/libinput-gestures*
-/apps/hardware/*.log
-
-# Shadowsocks
-!/apps/shadowsocks/
-/apps/shadowsocks/*
-!/apps/shadowsocks/*.json

@@ -1,0 +1,32 @@
+#!/bin/bash
+# Check mirror status before full update
+# ... requires: `pacman-mirrors-status`
+
+PACMAN_DEFAULT_COUNTRY="China"
+
+if ! command -v pacman &>/dev/null; then
+    echo ':: Pacman not found! exiting'
+    exit 1
+fi
+
+if ! command -v pacman-mirrors-status &>/dev/null; then
+    # shellcheck disable=2016
+    echo ':: Require `pacman-mirrors-status`! exiting'
+    exit 1
+fi
+
+loc=$PACMAN_DEFAULT_COUNTRY
+mirror=$(grep '^Server' /etc/pacman.d/mirrorlist \
+	| sed -E -e 's/Server[ =]+//g' \
+	| grep --color=none --only-matching -E '^[^\$]+')
+echo ":: Current mirror: $mirror"
+
+hostname=$(sed -E 's|.*://([^/]+)/[^/].*$|\1|g' <<< "$mirror")
+pacman-mirrors-status "$loc" \
+	| GREP_COLOR='1;33' grep --color=always -E "[^ ]*$hostname""[^ ]*|$" \
+	| sed -E 's/([[ ])0([],])/\1MARK\2/g' \
+	| grep --color=always -E 'MARK|$' \
+	| sed -e 's/MARK/0/g'
+
+echo ":: Upgrading..."
+sudo pacman -Syu
